@@ -33,26 +33,23 @@ android {
     }
     
     signingConfigs {
-        release {
-            // قراءة معلومات التوقيع من ملف key.properties
-            def keystoreProperties = new Properties()
-            def keystorePropertiesFile = rootProject.file('key.properties')
-            if (keystorePropertiesFile.exists()) {
-                keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
-            } else {
-                print("تحذير: لم يتم العثور على ملف key.properties. لن يتم إنشاء APK موقّع.")
-                // في حالة عدم وجود الملف، لا تقم بتعيين التوقيع، وسيعمل البناء للـ debug
-            }
+    create("release") { // <-- ✅ استخدام create("release")
+        val keystoreProperties = Properties() // <-- ✅ استخدام val و Properties()
+        val keystorePropertiesFile = rootProject.file("key.properties") // <-- ✅ استخدام "" وليس ''
 
-            // تعيين القيم من key.properties
-            if (keystoreProperties['storeFile']) {
-                keyAlias keystoreProperties['keyAlias']
-                keyPassword keystoreProperties['keyPassword']
-                storeFile file(keystoreProperties['storeFile'])
-                storePassword keystoreProperties['storePassword']
-            }
+        if (keystorePropertiesFile.exists()) {
+            keystoreProperties.load(FileInputStream(keystorePropertiesFile)) // <-- ✅ حذف new
+
+            // <-- ✅ تعيين القيم باستخدام = و as String
+            keyAlias = keystoreProperties["keyAlias"] as String
+            keyPassword = keystoreProperties["keyPassword"] as String
+            storeFile = file(keystoreProperties["storeFile"] as String) // <-- ✅ تعيين storeFile
+            storePassword = keystoreProperties["storePassword"] as String
+        } else {
+            println("تحذير: لم يتم العثور على ملف key.properties. لن يتم إنشاء APK موقّع.")
         }
     }
+}
 
     buildTypes {
         release {
