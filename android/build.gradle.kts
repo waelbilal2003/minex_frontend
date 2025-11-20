@@ -1,16 +1,22 @@
 buildscript {
-    // ⭐ ⭐ ⭐ تعريف المتغير في buildscript ⭐ ⭐ ⭐
-    // هذا هو المكان المناسب لتعريف kotlin_version في Kotlin DSL
-    var kotlin_version: String by extra // أو عيّن القيمة مباشرة: var kotlin_version: String by extra("2.1.0")
+    // ⭐ ⭐ ⭐ الطريقة الصحيحة لتعريف المتغير ⭐ ⭐ ⭐
+    // 1. تعريف كـ `ext` property
+    // ext.kotlin_version = "2.1.0"
+
+    // أو 2. تعريف كـ `extra` property (الطريقة المفضلة في Kotlin DSL)
+    // extra["kotlin_version"] = "2.1.0" // ⭐ ⭐ ⭐ هذا هو السطر المهم ⭐ ⭐ ⭐
+
+    // أو 3. تعريف كـ متغير محلي داخل block
+    val kotlin_version = "2.1.0" // ⭐ ⭐ ⭐ هذا هو السطر المهم ⭐ ⭐ ⭐
 
     repositories {
         google()
         mavenCentral()
     }
     dependencies {
-        // ⭐ ⭐ ⭐ استخدام صيغة Kotlin DSL ⭐ ⭐ ⭐
-        classpath("com.android.tools.build:gradle:8.9.1") // <-- ✅ استخدم classpath("...")
-        classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version") // <-- ✅ استخدم classpath("...")
+        classpath("com.android.tools.build:gradle:8.9.1")
+        // ⭐ ⭐ ⭐ استخدام المتغير بعد تعريفه ⭐ ⭐ ⭐
+        classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version") // ⭐ ⭐ ⭐ الآن $kotlin_version معرف ⭐ ⭐ ⭐
     }
 }
 
@@ -36,7 +42,7 @@ tasks.register<Delete>("clean") {
     delete(rootProject.layout.buildDirectory)
 }
 
-// ⭐ ⭐ ⭐ تأكد من أن قسم plugins هذا في الملف الخاطئ ⭐ ⭐ ⭐
+// ⭐ ⭐ ⭐ تأكد أن قسم plugins هذا في الملف الخاطئ ⭐ ⭐ ⭐
 // ⭐ ⭐ ⭐ يجب أن يكون في android/app/build.gradle.kts ⭐ ⭐ ⭐
 //plugins {
 //    id("com.android.application")
