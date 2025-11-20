@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:minex/home_page.dart';
 import 'login_page.dart';
 import 'auth_service.dart';
 
@@ -221,7 +222,7 @@ class _SignupPageState extends State<SignupPage> {
         await AuthService.loadUserData();
 
         Navigator.of(context).pushAndRemoveUntil(
-          MaterialPageRoute(builder: (context) => const LoginPage()),
+          MaterialPageRoute(builder: (context) => const HomePage()),
           (Route<dynamic> route) => false,
         );
       } else {
@@ -642,9 +643,8 @@ class _SignupPageState extends State<SignupPage> {
                       borderSide: BorderSide(color: _primaryColor, width: 2),
                     ),
                     prefixIcon: Icon(Icons.lock, color: _primaryColor),
-                    errorText: _passwordsMatch
-                        ? null
-                        : 'كلمات المرور غير متطابقة',
+                    errorText:
+                        _passwordsMatch ? null : 'كلمات المرور غير متطابقة',
                     errorStyle: const TextStyle(color: Colors.red),
                   ),
                   validator: (value) {
@@ -702,7 +702,7 @@ class _SignupPageState extends State<SignupPage> {
   void _navigateToLogin() {
     Navigator.pushReplacement(
       context,
-      MaterialPageRoute(builder: (context) => const LoginPage()),
+      MaterialPageRoute(builder: (context) => const HomePage()),
     );
   }
 }

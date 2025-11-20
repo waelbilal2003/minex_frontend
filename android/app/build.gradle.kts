@@ -31,12 +31,32 @@ android {
         versionName = flutter.versionName
         multiDexEnabled = true // السطر المضاف لدعم MultiDex 
     }
+    
+    signingConfigs {
+        release {
+            // قراءة معلومات التوقيع من ملف key.properties
+            def keystoreProperties = new Properties()
+            def keystorePropertiesFile = rootProject.file('key.properties')
+            if (keystorePropertiesFile.exists()) {
+                keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
+            } else {
+                print("تحذير: لم يتم العثور على ملف key.properties. لن يتم إنشاء APK موقّع.")
+                // في حالة عدم وجود الملف، لا تقم بتعيين التوقيع، وسيعمل البناء للـ debug
+            }
+
+            // تعيين القيم من key.properties
+            if (keystoreProperties['storeFile']) {
+                keyAlias keystoreProperties['keyAlias']
+                keyPassword keystoreProperties['keyPassword']
+                storeFile file(keystoreProperties['storeFile'])
+                storePassword keystoreProperties['storePassword']
+            }
+        }
+    }
 
     buildTypes {
         release {
-            // TODO: Add your own signing config for the release build.
-            // Signing with the debug keys for now, so `flutter run --release` works.
-            signingConfig = signingConfigs.getByName("debug")
+            signingConfig signingConfigs.release
         }
     }
 }

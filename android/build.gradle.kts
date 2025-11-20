@@ -4,8 +4,8 @@ buildscript {
         mavenCentral()
     }
     dependencies {
-        // هذا هو السطر الذي يقوم بنفس وظيفة تعريف الـ plugin
-        classpath("com.google.gms:google-services:4.4.1")
+        classpath 'com.android.tools.build:gradle:8.9.1' 
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
     }
 }
 
