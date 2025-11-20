@@ -42,7 +42,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: release-apk
-          path: build/app/outputs/flutter-apk/app-release.apk
+          path: build/app/outputs/flutter-apk/Minex.apk
 
       - name: Send APK to Telegram
         env:
@@ -50,5 +50,5 @@ jobs:
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
         run: |
           curl -F chat_id=${TELEGRAM_CHAT_ID} \
-               -F document=@build/app/outputs/flutter-apk/app-release.apk \
+               -F document=@build/app/outputs/flutter-apk/Minex.apk \
                "https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendDocument"
