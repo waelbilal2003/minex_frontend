@@ -1,19 +1,28 @@
-// ⭐️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️......../
 import java.util.Properties
 import java.io.FileInputStream
 
 plugins {
     id("com.android.application")
-    id("kotlin-android")
-    // The Flutter Gradle Plugin must be applied after the Android and Kotlin Gradle plugins.
+    // تم تصحيح معرف المكون الإضافي لـ Kotlin ليتوافق مع الكود الناجح
+    id("org.jetbrains.kotlin.android") 
+    // يجب أن يكون مكون Flutter الإضافي بعد Android و Kotlin
     id("dev.flutter.flutter-gradle-plugin")
-    // com.google.gms.google-services تم نقله إلى نهاية الملف
+    // com.google.gms.google-services سيتم تطبيقه في نهاية الملف
+}
+
+// ✅ تم نقل تعريف keystoreProperties إلى خارج كتلة android ليكون في المستوى الأعلى، كما في الكود الناجح
+val keystoreProperties = Properties()
+val keystorePropertiesFile = rootProject.file("key.properties")
+if (keystorePropertiesFile.exists()) {
+    keystoreProperties.load(FileInputStream(keystorePropertiesFile))
 }
 
 android {
     namespace = "com.example.minex"
-    compileSdk = flutter.compileSdkVersion
-    ndkVersion = "27.0.12077973"  // تم تحديث إصدار NDK هنا
+    // استخدام flutter.compileSdkVersion يفضل استخدام رقم ثابت مثل 34
+    compileSdk = 34 
+    // استخدام flutter.ndkVersion هو الأفضل للتوافق
+    ndkVersion = flutter.ndkVersion 
 
     compileOptions {
         isCoreLibraryDesugaringEnabled = true
@@ -22,61 +31,57 @@ android {
     }
 
     kotlinOptions {
-        jvmTarget = JavaVersion.VERSION_11.toString()
+        jvmTarget = "11"
     }
 
     defaultConfig {
-        // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
         applicationId = "com.example.minex"
-        // You can update the following values to match your application needs.
-        // For more information, see: https://flutter.dev/to/review-gradle-config.  
         minSdk = flutter.minSdkVersion
         targetSdk = flutter.targetSdkVersion
-        versionCode = 2
+        versionCode = flutter.versionCode.toInt()
         versionName = flutter.versionName
-        multiDexEnabled = true // السطر المضاف لدعم MultiDex 
+        multiDexEnabled = true
     }
     
-    // ⭐️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️......../
+    // ✅ تم تصحيح قسم التوقيع ليتطابق تماماً مع الكود الناجح ويعالج مشكلة null
     signingConfigs {
-        create("release") { // <-- ✅ الآن create داخل signingConfigs
-            val keystoreProperties = Properties() // <-- ✅ تم استيراد Properties
-            val keystorePropertiesFile = rootProject.file("key.properties")
-            
-            if (keystorePropertiesFile.exists()) {
-                keystoreProperties.load(FileInputStream(keystorePropertiesFile)) // <-- ✅ تم استيراد FileInputStream
-                
-                keyAlias = keystoreProperties["keyAlias"] as String // <-- ✅ صيغة Kotlin DSL
-                keyPassword = keystoreProperties["keyPassword"] as String // <-- ✅ صيغة Kotlin DSL
-                storeFile = file(keystoreProperties["storeFile"] as String) // <-- ✅ صيغة Kotlin DSL
-                storePassword = keystoreProperties["storePassword"] as String // <-- ✅ صيغة Kotlin DSL
-            } else {
-                println("تحذير: لم يتم العثور على ملف key.properties. لن يتم إنشاء APK موقّع.")
-            }
+        create("release") {
+            keyAlias = keystoreProperties["keyAlias"] as String
+            keyPassword = keystoreProperties["keyPassword"] as String
+            // ✅ هذا هو السطر الحاسم الذي تم تصحيحه للتعامل مع القيم null بأمان
+            storeFile = keystoreProperties["storeFile"]?.let { file(it) }
+            storePassword = keystoreProperties["storePassword"] as String
         }
     }
 
     buildTypes {
-        getByName("release") { // <-- ✅ استخدام getByName("release")
-            signingConfig = signingConfigs.getByName("release") // <-- ✅ صيغة Kotlin DSL و getByName
+        release {
+            signingConfig = signingConfigs.getByName("release")
+            isMinifyEnabled = false // تم تعطيل التقليل والتقليل للموارد
+            isShrinkResources = false
+            // تم إضافة قسم proguardFiles مع ملف افتراضي
+            proguardFiles(
+                getDefaultProguardFile("proguard-android-optimize.txt"),
+                "proguard-rules.pro"
+            )
         }
     }
-}
-
-// القسم المضاف لحل المشكلة
-dependencies {
-    coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.0.4")
-    // استيراد Firebase BOM (Bill of Materials)
-    implementation(platform("com.google.firebase:firebase-bom:33.0.0"))
-    // إضافة الاعتمادية لـ Firebase Analytics (مثال)
-    implementation("com.google.firebase:firebase-analytics")
-    // إضافة الاعتمادية لـ Firebase Messaging (ضروري للإشعارات)
-    implementation("com.google.firebase:firebase-messaging")
 }
 
 flutter {
     source = "../.."
 }
 
-// ⭐️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️......
-//
+// ✅ تم إضافة قسم الاعتماديات في نهاية الملف
+dependencies {
+    coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.0.4")
+    // استيراد Firebase BOM (Bill of Materials)
+    implementation(platform("com.google.firebase:firebase-bom:33.0.0"))
+    // إضافة الاعتمادية لـ Firebase Analytics
+    implementation("com.google.firebase:firebase-analytics")
+    // إضافة الاعتمادية لـ Firebase Messaging (ضروري للإشعارات)
+    implementation("com.google.firebase:firebase-messaging")
+}
+
+// ✅ تطبيق مكون Google Services في نهاية الملف
+apply(plugin = "com.google.gms.google-services")
