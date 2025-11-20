@@ -1,13 +1,9 @@
-import java.util.Properties
-import java.io.FileInputStream
-
 plugins {
     id("com.android.application")
     id("kotlin-android")
     // The Flutter Gradle Plugin must be applied after the Android and Kotlin Gradle plugins.
     id("dev.flutter.flutter-gradle-plugin")
-    // com.google.gms.google-services تم نقله إلى نهاية الملف
-}
+    //id("com.google.gms.google-services")}
 
 android {
     namespace = "com.example.minex"
@@ -28,7 +24,7 @@ android {
         // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
         applicationId = "com.example.minex"
         // You can update the following values to match your application needs.
-        // For more information, see: https://flutter.dev/to/review-gradle-config.  
+        // For more information, see: https://flutter.dev/to/review-gradle-config.
         minSdk = flutter.minSdkVersion
         targetSdk = flutter.targetSdkVersion
         versionCode = 2
@@ -36,28 +32,31 @@ android {
         multiDexEnabled = true // السطر المضاف لدعم MultiDex 
     }
     
-    // ⭐ تحويل قسم التوقيع إلى Kotlin DSL
     signingConfigs {
-        create("release") {
-            val keystoreProperties = Properties()
-            val keystorePropertiesFile = rootProject.file("key.properties")
-            
+        release {
+            // قراءة معلومات التوقيع من ملف key.properties
+            def keystoreProperties = new Properties()
+            def keystorePropertiesFile = rootProject.file('key.properties')
             if (keystorePropertiesFile.exists()) {
-                keystoreProperties.load(FileInputStream(keystorePropertiesFile))
-                
-                keyAlias = keystoreProperties["keyAlias"] as String
-                keyPassword = keystoreProperties["keyPassword"] as String
-                storeFile = file(keystoreProperties["storeFile"] as String)
-                storePassword = keystoreProperties["storePassword"] as String
+                keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
             } else {
-                println("تحذير: لم يتم العثور على ملف key.properties. لن يتم إنشاء APK موقّع.")
+                print("تحذير: لم يتم العثور على ملف key.properties. لن يتم إنشاء APK موقّع.")
+                // في حالة عدم وجود الملف، لا تقم بتعيين التوقيع، وسيعمل البناء للـ debug
+            }
+
+            // تعيين القيم من key.properties
+            if (keystoreProperties['storeFile']) {
+                keyAlias keystoreProperties['keyAlias']
+                keyPassword keystoreProperties['keyPassword']
+                storeFile file(keystoreProperties['storeFile'])
+                storePassword keystoreProperties['storePassword']
             }
         }
     }
 
     buildTypes {
-        getByName("release") {
-            signingConfig = signingConfigs.getByName("release")
+        release {
+            signingConfig signingConfigs.release
         }
     }
 }
@@ -76,6 +75,3 @@ dependencies {
 flutter {
     source = "../.."
 }
-
-// ⭐ وضع هذا في النهاية وفقًا للمعايير
-apply(plugin = "com.google.gms.google-services")
