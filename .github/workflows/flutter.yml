@@ -19,15 +19,7 @@ jobs:
         with:
           flutter-version: '3.35.1'
 
-      - name: Create keystore and key.properties from secrets
-        run: |
-          # Recreate upload-keystore.jks from base64
-          echo "$KEYSTORE_JKS_BASE64" | base64 --decode > android/app/upload-keystore.jks
-          # Recreate key.properties
-          echo "$KEYSTORE_PROPERTIES" > android/key.properties
-        env:
-          KEYSTORE_JKS_BASE64: ${{ secrets.KEYSTORE_JKS_BASE64 }}
-          KEYSTORE_PROPERTIES: ${{ secrets.KEYSTORE_PROPERTIES }}
+      # تم حذف الخطوة القديمة لإنشاء الملفات، لأن الكود الجديد في build.gradle.kts سيتولى هذه المهمة
 
       - name: Flutter Clean
         run: flutter clean
@@ -36,13 +28,20 @@ jobs:
         run: flutter pub get
 
       - name: Build APK (Release)
+        # ✅ تم تعديل هذه الخطوة لتوفير الـ Secrets لـ Gradle
+        env:
+          KEYSTORE_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
+          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+          STORE_PASSWORD: ${{ secrets.STORE_PASSWORD }}
         run: flutter build apk --release
 
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
         with:
           name: release-apk
-          path: build/app/outputs/flutter-apk/Minex.apk
+          # ✅ تم تعديل المسار ليتوافق مع الاسم الافتراضي للملف المُنشأ
+          path: build/app/outputs/flutter-apk/app-release.apk
 
       - name: Send APK to Telegram
         env:
@@ -50,7 +49,8 @@ jobs:
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
         run: |
           curl -F chat_id=${TELEGRAM_CHAT_ID} \
-               -F document=@build/app/outputs/flutter-apk/Minex.apk \
+               # ✅ تم تعديل المسار هنا أيضاً ليتوافق مع الاسم الافتراضي
+               -F document=@build/app/outputs/flutter-apk/app-release.apk \
                "https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendDocument"
 
   #وائل بلال
