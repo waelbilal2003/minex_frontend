@@ -37,13 +37,27 @@ android {
     }
 
     signingConfigs {
-        create("release") {
-            keyAlias = keystoreProperties["keyAlias"] as String
-            keyPassword = keystoreProperties["keyPassword"] as String
-            storeFile = keystoreProperties["storeFile"]?.let { file(it) }
-            storePassword = keystoreProperties["storePassword"] as String
+    create("release") {
+        println("🔑 Configuring release signing from GitHub Secrets...")
+
+        keyAlias = System.getenv("KEY_ALIAS")
+        keyPassword = System.getenv("KEY_PASSWORD")
+        storeFile = file(System.getenv("STORE_FILE") ?: "minex.jks")
+        storePassword = System.getenv("STORE_PASSWORD")
+
+        if (keyAlias == null) {
+            throw GradleException("❌ KEY_ALIAS secret not found in GitHub Actions.")
         }
+        if (keyPassword == null) {
+            throw GradleException("❌ KEY_PASSWORD secret not found in GitHub Actions.")
+        }
+        if (storePassword == null) {
+            throw GradleException("❌ STORE_PASSWORD secret not found in GitHub Actions.")
+        }
+
+        println("✅ Release signing configured successfully from GitHub Secrets.")
     }
+}
     
    buildTypes {
         release {
