@@ -1,5 +1,6 @@
 import java.util.Properties
 import java.io.FileInputStream
+import java.util.Base64
 
 plugins {
     id("com.android.application")
@@ -7,6 +8,7 @@ plugins {
     id("dev.flutter.flutter-gradle-plugin")
 }
 
+// تعريف keystoreProperties للعمل المحلي فقط
 val keystoreProperties = Properties()
 val keystorePropertiesFile = rootProject.file("key.properties")
 if (keystorePropertiesFile.exists()) {
@@ -14,12 +16,12 @@ if (keystorePropertiesFile.exists()) {
 }
 
 android {
-    namespace = "com.example.Minex"
-    compileSdk = 36
+    namespace = "com.example.minex"
+    compileSdk = flutter.compileSdkVersion
     ndkVersion = flutter.ndkVersion
 
-    // ✅✅ توحيد إصدار Java لكل من Java و Kotlin
     compileOptions {
+        isCoreLibraryDesugaringEnabled = true
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
     }
@@ -29,37 +31,51 @@ android {
     }
 
     defaultConfig {
-        applicationId = "com.example.Minex"
+        applicationId = "com.example.minex"
         minSdk = flutter.minSdkVersion
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode.toInt()
         versionName = flutter.versionName
+        multiDexEnabled = true
     }
-
-    signingConfigs {
-    create("release") {
-        println("🔑 Configuring release signing from GitHub Secrets...")
-
-        keyAlias = System.getenv("KEY_ALIAS")
-        keyPassword = System.getenv("KEY_PASSWORD")
-        storeFile = file(System.getenv("STORE_FILE") ?: "minex.jks")
-        storePassword = System.getenv("STORE_PASSWORD")
-
-        if (keyAlias == null) {
-            throw GradleException("❌ KEY_ALIAS secret not found in GitHub Actions.")
-        }
-        if (keyPassword == null) {
-            throw GradleException("❌ KEY_PASSWORD secret not found in GitHub Actions.")
-        }
-        if (storePassword == null) {
-            throw GradleException("❌ STORE_PASSWORD secret not found in GitHub Actions.")
-        }
-
-        println("✅ Release signing configured successfully from GitHub Secrets.")
-    }
-}
     
-   buildTypes {
+    // ✅ الكود الجديد الذي يعتمد على GitHub Secrets
+    signingConfigs {
+        create("release") {
+            // التحقق مما إذا كنا في بيئة CI/CD (GitHub Actions)
+            val isCi = System.getenv("CI") != null
+
+            if (isCi) {
+                println("🔑 Running in CI environment. Setting up keystore from GitHub Secrets.")
+
+                // 1. فك تشفير وإنشاء ملف minex.jks مؤقت
+                val keystoreBase64 = System.getenv("KEYSTORE_BASE64")
+                if (keystoreBase64 == null) {
+                    throw GradleException("❌ KEYSTORE_BASE64 secret not found in GitHub Actions.")
+                }
+                val keystoreFile = file("minex.jks")
+                keystoreFile.writeBytes(Base64.getDecoder().decode(keystoreBase64))
+                storeFile = keystoreFile
+
+                // 2. قراءة باقي البيانات من الـ Secrets
+                keyAlias = System.getenv("KEY_ALIAS") ?: throw GradleException("❌ KEY_ALIAS secret not found.")
+                keyPassword = System.getenv("KEY_PASSWORD") ?: throw GradleException("❌ KEY_PASSWORD secret not found.")
+                storePassword = System.getenv("STORE_PASSWORD") ?: throw GradleException("❌ STORE_PASSWORD secret not found.")
+
+                println("✅ Keystore created and signing configured successfully from GitHub Secrets.")
+
+            } else {
+                // هذا الجزء يعمل فقط على جهازك المحلي
+                println("🔑 Running locally. Setting up keystore from key.properties file.")
+                keyAlias = keystoreProperties["keyAlias"] as? String
+                keyPassword = keystoreProperties["keyPassword"] as? String
+                storeFile = keystoreProperties["storeFile"]?.let { file(it) }
+                storePassword = keystoreProperties["storePassword"] as? String
+            }
+        }
+    }
+
+    buildTypes {
         release {
             signingConfig = signingConfigs.getByName("release")
             isMinifyEnabled = false
@@ -75,3 +91,12 @@ android {
 flutter {
     source = "../.."
 }
+
+dependencies {
+    coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.0.4")
+    implementation(platform("com.google.firebase:firebase-bom:33.0.0"))
+    implementation("com.google.firebase:firebase-analytics")
+    implementation("com.google.firebase:firebase-messaging")
+}
+
+apply(plugin = "com.google.gms.google-services")
