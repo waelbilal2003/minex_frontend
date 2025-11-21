@@ -42,15 +42,3 @@ jobs:
           name: release-apk
           # ✅ تم تعديل المسار ليتوافق مع الاسم الافتراضي للملف المُنشأ
           path: build/app/outputs/flutter-apk/app-release.apk
-
-      - name: Send APK to Telegram
-        env:
-          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
-          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
-        run: |
-          curl -F chat_id=${TELEGRAM_CHAT_ID} \
-               # ✅ تم تعديل المسار هنا أيضاً ليتوافق مع الاسم الافتراضي
-               -F document=@build/app/outputs/flutter-apk/app-release.apk \
-               "https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendDocument"
-
-  #وائل بلال
