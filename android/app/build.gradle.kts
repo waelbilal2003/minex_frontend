@@ -32,12 +32,20 @@ android {
     }
 
     defaultConfig {
-        applicationId = "site.minexsy.minex_syrian_arab"
-        minSdk = flutter.minSdkVersion
-        targetSdk = flutter.targetSdkVersion
-        versionCode = flutter.versionCode.toInt()
-        versionName = flutter.versionName
-        multiDexEnabled = true
+    applicationId = "site.minexsy.minex_syrian_arab"
+    minSdk = flutter.minSdkVersion
+    targetSdk = flutter.targetSdkVersion
+    
+    // ✨ تحقق من رقم الإصدار قبل البناء
+    val versionNameFromFile = flutter.versionName
+    val versionCodeFromFile = flutter.versionCode?.toInt() ?: 1
+
+    println("🔢 Building version: $versionNameFromFile (Code: $versionCodeFromFile)")
+
+    versionCode = versionCodeFromFile
+    versionName = versionNameFromFile
+    
+    multiDexEnabled = true
     }
     
     // ✅ الكود الجديد الذي يعتمد على GitHub Secrets
