@@ -1,12 +1,13 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
-// تم إزالة استيرادات Firebase
+import 'package:firebase_core/firebase_core.dart';
 import 'signup_page.dart';
 // ملفات المشروع
+import 'firebase_options.dart';
 import 'auth_service.dart';
 import 'home_page.dart';
 import 'notifications_page.dart';
-// تم إزالة استيراد Firebase API
+import 'firebase_api.dart';
 
 // مفتاح عام للتنقل
 import 'app_globals.dart';
@@ -18,9 +19,15 @@ Future<void> main() async {
     FlutterError.dumpErrorToConsole(details);
   };
 
-  // تم إزالة تهيئة Firebase تماماً
-
-  debugPrint('✅ التطبيق يعمل بدون Firebase');
+  try {
+    await Firebase.initializeApp(
+      options: DefaultFirebaseOptions.currentPlatform,
+    ).timeout(const Duration(seconds: 8));
+    debugPrint(' Firebase initialized');
+  } catch (e, st) {
+    debugPrint('⚠️ Firebase.initializeApp failed or timed out: $e');
+    debugPrint('$st');
+  }
 
   try {
     await AuthService.loadUserData().timeout(const Duration(seconds: 5));
@@ -95,10 +102,12 @@ class _SplashScreenState extends State<SplashScreen> {
   void initState() {
     super.initState();
 
-    // بعد ال frame الأولي نقوم بالتنقل والتحقق
+    // بعد ال frame الأولي نقوم بالتنقل والتحقق ونشغّل الإشعارات (غير محظور)
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      // تم إزالة استدعاء الإشعارات المرتبطة بـ Firebase
-      debugPrint("🔕 الإشعارات معطلة مؤقتاً");
+      // تشغيل الإشعارات بدون حظر واجهة المستخدم
+      FirebaseApi().initNotifications().catchError((e) {
+        debugPrint("⚠️ initNotifications failed: $e");
+      });
 
       _navigateBasedOnAuthStatus();
     });
@@ -110,10 +119,7 @@ class _SplashScreenState extends State<SplashScreen> {
 
     if (!mounted) return;
 
-    // استخدام بيانات وهمية للاختبار
-    bool isLoggedIn = false; // يمكن تغييرها لاختبار مختلف التدفقات
-
-    if (isLoggedIn) {
+    if (AuthService.isLoggedIn) {
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(builder: (context) => const HomePage()),
@@ -168,23 +174,7 @@ class _SplashScreenState extends State<SplashScreen> {
               'بيع وشراء بكل سهولة',
               style: TextStyle(fontSize: 18, color: Colors.white70),
             ),
-            const SizedBox(height: 30),
-            // إضافة مؤشر أن التطبيق يعمل بدون Firebase
-            Container(
-              padding: const EdgeInsets.all(8),
-              decoration: BoxDecoration(
-                color: Colors.green,
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: const Text(
-                'وضع الاختبار - بدون Firebase',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ),
-            const SizedBox(height: 20),
+            const SizedBox(height: 50),
             const CircularProgressIndicator(
               valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
             ),
