@@ -6,7 +6,8 @@ plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
     id("dev.flutter.flutter-gradle-plugin")
-    id("com.google.gms.google-services") version "4.4.1" apply false
+    // ✨ تم تصحيح تطبيق الـ plugin
+    id("com.google.gms.google-services") version "4.4.1" 
 }
 
 // تعريف keystoreProperties للعمل المحلي فقط
@@ -32,20 +33,34 @@ android {
     }
 
     defaultConfig {
-    applicationId = "site.minexsy.minex_syrian_arab"
-    minSdk = flutter.minSdkVersion
-    targetSdk = flutter.targetSdkVersion
-    
-    // ✨ تحقق من رقم الإصدار قبل البناء
-    val versionNameFromFile = flutter.versionName
-    val versionCodeFromFile = flutter.versionCode?.toInt() ?: 1
+        applicationId = "site.minexsy.minex_syrian_arab"
+        minSdk = flutter.minSdkVersion
+        targetSdk = flutter.targetSdkVersion
+        
+        // ✨ تحقق من رقم الإصدار قبل البناء
+        val versionNameFromFile = flutter.versionName
+        val versionCodeFromFile = flutter.versionCode?.toInt() ?: 1
 
-    println("🔢 Building version: $versionNameFromFile (Code: $versionCodeFromFile)")
+        println("🔢 Building version: $versionNameFromFile (Code: $versionCodeFromFile)")
 
-    versionCode = versionCodeFromFile
-    versionName = versionNameFromFile
-    
-    multiDexEnabled = true
+        versionCode = versionCodeFromFile
+        versionName = versionNameFromFile
+        
+        multiDexEnabled = true
+    }
+
+    // ✨ تم نقل كود إعادة التسمية إلى المكان الصحيح
+    applicationVariants.all {
+        val variant = this
+        variant.outputs
+            .map { it as com.android.build.gradle.internal.api.BaseVariantOutputImpl }
+            .forEach { output ->
+                // استخراج اسم المعمارية (arm64-v8a, armeabi-v7a, etc.)
+                val abi = output.outputFile.name.split("-")[1]
+                // ✨ تم تحسين اسم الملف ليكون أوضح وأقصر
+                val outputFileName = "minex-${abi}.apk"
+                output.outputFileName = outputFileName
+            }
     }
     
     // ✅ الكود الجديد الذي يعتمد على GitHub Secrets
@@ -108,4 +123,5 @@ dependencies {
     implementation("com.google.firebase:firebase-messaging")
 }
 
-apply(plugin = "com.google.gms.google-services")
+// ✨ تم حذف السطر الأخير لأن الـ plugin تم تطبيقه في الأعلى
+// apply(plugin = "com.google.gms.google-services")

@@ -41,4 +41,4 @@ jobs:
           # ✨ تم تعديل الاسم والمسار ليتوافق مع ملف arm64-v8a
           name: release-apk-arm64
           # المسار الجديد لملف APK الخاص بمعمارية arm64-v8a
-          path: build/app/outputs/flutter-apk/minex.apk
+          path: build/app/outputs/flutter-apk/app-arm64-v8a-release.apk
