@@ -19,7 +19,7 @@ class PostCardWidget extends StatefulWidget {
   final VoidCallback? onDelete;
 
   const PostCardWidget({Key? key, required this.post, this.onDelete})
-    : super(key: key);
+      : super(key: key);
 
   @override
   _PostCardWidgetState createState() => _PostCardWidgetState();
@@ -166,9 +166,8 @@ class _PostCardWidgetState extends State<PostCardWidget> {
                           final result = await AuthService.reportPost(
                             postId: postId,
                             reason: selectedReason,
-                            description: description.isEmpty
-                                ? null
-                                : description,
+                            description:
+                                description.isEmpty ? null : description,
                           );
                           ScaffoldMessenger.of(context).showSnackBar(
                             SnackBar(
@@ -178,9 +177,8 @@ class _PostCardWidgetState extends State<PostCardWidget> {
                                         ? 'تم إرسال الإبلاغ بنجاح'
                                         : 'خطأ في الإرسال'),
                               ),
-                              backgroundColor: result['success']
-                                  ? Colors.green
-                                  : Colors.red,
+                              backgroundColor:
+                                  result['success'] ? Colors.green : Colors.red,
                             ),
                           );
                         },
@@ -443,9 +441,8 @@ class _PostCardWidgetState extends State<PostCardWidget> {
                           Text(
                             _isFavorite ? 'إزالة من المفضلة' : 'إضافة للمفضلة',
                             style: TextStyle(
-                              color: _isFavorite
-                                  ? Colors.red
-                                  : Colors.grey[700],
+                              color:
+                                  _isFavorite ? Colors.red : Colors.grey[700],
                             ),
                           ),
                         ],
@@ -558,8 +555,7 @@ class _PostCardWidgetState extends State<PostCardWidget> {
                         // تحديث القيم من الخادم
                         widget.post['isLiked'] =
                             result['isLiked'] ?? widget.post['isLiked'];
-                        widget.post['likes_count'] =
-                            result['likesCount'] ??
+                        widget.post['likes_count'] = result['likesCount'] ??
                             result['likes_count'] ??
                             widget.post['likes_count'];
                         setState(() {});
@@ -637,11 +633,10 @@ class _PostCardWidgetState extends State<PostCardWidget> {
                     try {
                       // إنشاء رابط فريد للمنشور
                       final postId = widget.post['id'];
-                      final postTitle =
-                          widget.post['title'] ??
+                      final postTitle = widget.post['title'] ??
                           widget.post['content']?.substring(0, 30) ??
                           'منشور';
-                      final url = 'https://kiniru.site/post/$postId';
+                      final url = 'https://minexsy.site/post/$postId';
 
                       // نص المشاركة الجذاب
                       final shareText =
@@ -1033,9 +1028,8 @@ class _PostCardWidgetState extends State<PostCardWidget> {
   Widget _buildImagesWidget(List<dynamic> images) {
     if (images.isEmpty) return const SizedBox.shrink();
 
-    final List<String> allImageUrls = images
-        .map((img) => _getImageUrl(img.toString()))
-        .toList();
+    final List<String> allImageUrls =
+        images.map((img) => _getImageUrl(img.toString())).toList();
 
     switch (images.length) {
       case 1:

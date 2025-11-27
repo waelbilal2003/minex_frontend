@@ -4,7 +4,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 
 class AuthService {
-  static String baseUrl = 'https://kiniru.site';
+  static String baseUrl = 'https://minexsy.site';
 
   // مفاتيح التخزين المحلي
   static const String _tokenKey = 'auth_token';
