@@ -1,0 +1,9 @@
+[{
+  "relation": ["delegate_permission/common.handle_all_urls"],
+  "target": {
+    "namespace": "android_app",
+    "package_name": "site.minexsy.minex_syrian_arab",
+    "sha256_cert_fingerprints":
+    ["F9:20:D3:D6:53:7E:9B:94:2F:E4:2B:03:00:0C:AF:FE:1E:84:F3:D9:5E:1A:FE:9C:3F:DA:63:6C:2D:1A:31:3D"]
+  }
+}]

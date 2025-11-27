@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'auth_service.dart';
 import 'login_page.dart';
 import 'user_profile_page.dart';
+import 'privacy_policy_page.dart';
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({Key? key}) : super(key: key);
@@ -55,6 +56,8 @@ class _ProfilePageState extends State<ProfilePage> {
     return Colors.grey;
   }
 
+  // في ملف profile_page.dart
+
   @override
   Widget build(BuildContext context) {
     if (_isLoading) {
@@ -75,8 +78,10 @@ class _ProfilePageState extends State<ProfilePage> {
         padding: const EdgeInsets.all(16.0),
         child: Column(
           children: [
-            _buildProfileInfo(),
+            _buildProfileInfo(), // بطاقة معلومات المستخدم
             const SizedBox(height: 20),
+
+            // ✨ بداية قائمة الإعدادات ✨
             _buildSettingsItem(
               icon: Icons.edit,
               title: 'تعديل الملف الشخصي',
@@ -97,7 +102,25 @@ class _ProfilePageState extends State<ProfilePage> {
               title: 'حول التطبيق',
               onTap: () => _aboutApp(),
             ),
+
+            // 👇👇👇 أضف الكود الجديد هنا بالضبط 👇👇👇
+            _buildSettingsItem(
+              icon: Icons.privacy_tip,
+              title: 'سياسة الخصوصية',
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const PrivacyPolicyPage(),
+                  ),
+                );
+              },
+            ),
+            // 👆👆👆 نهاية الكود الجديد 👆👆👆
+
             const SizedBox(height: 20),
+
+            // زر تسجيل الخروج
             SizedBox(
               width: double.infinity,
               child: ElevatedButton.icon(
@@ -583,6 +606,4 @@ class _ProfilePageState extends State<ProfilePage> {
       }
     }
   }
-
-  // --- ✨ نهاية التعديل 2 ---
 }

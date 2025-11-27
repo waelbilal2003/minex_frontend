@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:minex/home_page.dart';
 import 'login_page.dart';
 import 'auth_service.dart';
+import 'privacy_policy_page.dart';
 
 class SignupPage extends StatefulWidget {
   const SignupPage({Key? key}) : super(key: key);
@@ -18,6 +18,7 @@ class _SignupPageState extends State<SignupPage> {
   final _phoneController = TextEditingController();
   final _passwordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
+  bool _agreeToPrivacyPolicy = false;
   bool _passwordsMatch = true;
   bool _isLoading = false;
   String _selectedGender = 'ذكر';
@@ -196,7 +197,19 @@ class _SignupPageState extends State<SignupPage> {
 
   Future<void> _submitForm() async {
     _checkPasswordsMatch();
-    if (!_formKey.currentState!.validate() || !_passwordsMatch) return;
+    if (!_formKey.currentState!.validate() ||
+        !_passwordsMatch ||
+        !_agreeToPrivacyPolicy) {
+      if (!_agreeToPrivacyPolicy) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('يجب الموافقة على سياسة الخصوصية لإنشاء حساب'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+      return;
+    }
 
     setState(() => _isLoading = true);
 
@@ -222,7 +235,7 @@ class _SignupPageState extends State<SignupPage> {
         await AuthService.loadUserData();
 
         Navigator.of(context).pushAndRemoveUntil(
-          MaterialPageRoute(builder: (context) => const HomePage()),
+          MaterialPageRoute(builder: (context) => const LoginPage()),
           (Route<dynamic> route) => false,
         );
       } else {
@@ -656,6 +669,54 @@ class _SignupPageState extends State<SignupPage> {
                   onChanged: (value) => _checkPasswordsMatch(),
                 ),
                 const SizedBox(height: 30),
+                Row(
+                  children: [
+                    Checkbox(
+                      value: _agreeToPrivacyPolicy,
+                      onChanged: (value) {
+                        setState(() {
+                          _agreeToPrivacyPolicy = value ?? false;
+                        });
+                      },
+                      activeColor: _primaryColor,
+                    ),
+                    Expanded(
+                      child: Text.rich(
+                        TextSpan(
+                          children: [
+                            const TextSpan(
+                              text: 'أوافق على ',
+                              style: TextStyle(fontSize: 14),
+                            ),
+                            WidgetSpan(
+                              child: GestureDetector(
+                                onTap: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) =>
+                                          const PrivacyPolicyPage(),
+                                    ),
+                                  );
+                                },
+                                child: const Text(
+                                  'سياسة الخصوصية',
+                                  style: TextStyle(
+                                    fontSize: 14,
+                                    color: Colors.blue,
+                                    decoration: TextDecoration.underline,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 20),
+
                 // زر إنشاء الحساب
                 SizedBox(
                   width: double.infinity,
@@ -702,7 +763,7 @@ class _SignupPageState extends State<SignupPage> {
   void _navigateToLogin() {
     Navigator.pushReplacement(
       context,
-      MaterialPageRoute(builder: (context) => const HomePage()),
+      MaterialPageRoute(builder: (context) => const LoginPage()),
     );
   }
 }

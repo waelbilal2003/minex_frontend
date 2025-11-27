@@ -27,4 +27,4 @@
 -keep class * extends android.content.ContentProvider
 
 # حماية فئات التطبيق المخصصة
--keep class com.example.minex.** { *; }
+-keep class site.minexsy.minex_syrian_arab.** { *; }

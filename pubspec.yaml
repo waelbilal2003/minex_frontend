@@ -58,14 +58,14 @@ flutter:
     - assets/images/electrical.png
     - assets/images/animals.png
     - assets/images/agriculture.png
-    - assets/images/food.webp
-    - assets/images/restaurants.webp
+    - assets/images/food.png
+    - assets/images/restaurants.png
     - assets/images/heating.png
-    - assets/images/accessories.webp
+    - assets/images/accessories.png
     - assets/images/house_rent.png
-    - assets/images/books.webp
+    - assets/images/books.png
     - assets/images/home_health.png
-    - assets/images/clothing_shoes.webp
+    - assets/images/clothing_shoes.png
     - assets/images/furniture.png
     - assets/images/wholesalers.png
     - assets/images/distributors.png
