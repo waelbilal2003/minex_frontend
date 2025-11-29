@@ -1,21 +1,18 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'package:app_links/app_links.dart';
+import 'package:app_links/app_links.dart'; // ✅ الإصدار الحديث
 import 'signup_page.dart';
+
 // ملفات المشروع
 import 'firebase_options.dart';
 import 'auth_service.dart';
 import 'home_page.dart';
 import 'notifications_page.dart';
 import 'firebase_api.dart';
-
-// مفتاح عام للتنقل
-import 'app_globals.dart';
-
+import 'app_globals.dart'; // مفتاح عام للتنقل
 import 'post_details_page.dart';
 
-// في دالة main، بعد تهيئة Firebase
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
@@ -27,7 +24,7 @@ Future<void> main() async {
     await Firebase.initializeApp(
       options: DefaultFirebaseOptions.currentPlatform,
     ).timeout(const Duration(seconds: 8));
-    debugPrint(' Firebase initialized');
+    debugPrint('Firebase initialized');
   } catch (e, st) {
     debugPrint('⚠️ Firebase.initializeApp failed or timed out: $e');
     debugPrint('$st');
@@ -59,7 +56,7 @@ class MyApp extends StatefulWidget {
 
 class _MyAppState extends State<MyApp> {
   final AppLinks _appLinks = AppLinks();
-  StreamSubscription<AppLink>? _linkSubscription; // 🔥 يصغي إلى AppLink
+  StreamSubscription<Uri?>? _linkSubscription; // ✅ تم التصحيح: Uri?
   String? _initialLink;
 
   @override
@@ -75,38 +72,35 @@ class _MyAppState extends State<MyApp> {
   }
 
   Future<void> _initDeepLinks() async {
-    // 🔥 الطريقة الرسمية الصحيحة: استخدام getInitialAppLink()
     try {
-      final AppLink? initialAppLink = await _appLinks.getInitialAppLink();
-      if (initialAppLink != null) {
-        debugPrint('Initial link: ${initialAppLink.link}');
-        // نستخدم .link للحصول على Uri ثم نحوله إلى String
-        _handleDeepLink(initialAppLink.link.toString());
+      // ✅ getInitialLink() يُعيد Uri?
+      final Uri? initialUri = await _appLinks.getInitialLink();
+      if (initialUri != null) {
+        debugPrint('Initial link: $initialUri');
+        _handleDeepLink(initialUri.toString());
       }
     } catch (e) {
       debugPrint('Error getting initial link: $e');
     }
 
-    // 🔥 الطريقة الرسمية الصحيحة: استخدام appLinkStream
-    _linkSubscription = _appLinks.appLinkStream.listen((AppLink appLink) {
-      debugPrint('Received link: ${appLink.link}');
-      // نحول Uri إلى String لمعالجته
-      _handleDeepLink(appLink.link.toString());
+    // ✅ uriLinkStream يُعيد Stream<Uri?>
+    _linkSubscription = _appLinks.uriLinkStream.listen((Uri? uri) {
+      if (uri != null) {
+        debugPrint('Received link: $uri');
+        _handleDeepLink(uri.toString());
+      }
     }, onError: (err) {
       debugPrint('Error listening to link stream: $err');
     });
   }
 
   void _handleDeepLink(String link) {
-    // التحقق من أن الرابط يبدأ بـ https://minexsy.site/posts/
+    // ✅ أُزيلت المسافات الزائدة من الرابط
     if (link.startsWith('https://minexsy.site/posts/')) {
-      // استخراج الـ ID من الرابط
       final postIdString = link.substring('https://minexsy.site/posts/'.length);
       final postId = int.tryParse(postIdString);
 
-      // إذا كان الـ ID صحيحاً، انتقل إلى صفحة التفاصيل
       if (postId != null) {
-        // حفظ الرابط لاستخدامه لاحقاً بعد بناء الواجهة
         setState(() {
           _initialLink = link;
         });
@@ -151,23 +145,17 @@ class _MyAppState extends State<MyApp> {
       navigatorKey: navigatorKey,
       home: SplashScreen(initialLink: _initialLink),
       routes: {'/notifications': (context) => const NotificationsPage()},
-      // إضافة onGenerateRoute للتعامل مع الروابط الديناميكية
       onGenerateRoute: (settings) {
-        // التحقق من أن المسار يبدأ بـ /posts/
         if (settings.name?.startsWith('/posts/') == true) {
-          // استخراج الـ ID من المسار
           final postIdString = settings.name?.substring('/posts/'.length);
           final postId = int.tryParse(postIdString ?? '');
 
-          // إذا كان الـ ID صحيحاً، انتقل إلى صفحة التفاصيل
           if (postId != null) {
             return MaterialPageRoute(
               builder: (context) => PostDetailsPage(postId: postId),
             );
           }
         }
-
-        // إذا لم يكن المسار متطابقاً، استخدم المسار الافتراضي
         return null;
       },
     );
@@ -188,9 +176,7 @@ class _SplashScreenState extends State<SplashScreen> {
   void initState() {
     super.initState();
 
-    // بعد ال frame الأولي نقوم بالتنقل والتحقق ونشغّل الإشعارات (غير محظور)
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      // تشغيل الإشعارات بدون حظر واجهة المستخدم
       FirebaseApi().initNotifications().catchError((e) {
         debugPrint("⚠️ initNotifications failed: $e");
       });
@@ -205,16 +191,15 @@ class _SplashScreenState extends State<SplashScreen> {
 
     if (!mounted) return;
 
-    // التحقق من وجود رابط أولي
     if (widget.initialLink != null) {
       final link = widget.initialLink!;
+      // ✅ تم التصحيح هنا أيضاً
       if (link.startsWith('https://minexsy.site/posts/')) {
         final postIdString =
             link.substring('https://minexsy.site/posts/'.length);
         final postId = int.tryParse(postIdString);
 
         if (postId != null) {
-          // الانتقال إلى صفحة تفاصيل المنشور
           Navigator.pushReplacement(
             context,
             MaterialPageRoute(
@@ -225,7 +210,6 @@ class _SplashScreenState extends State<SplashScreen> {
       }
     }
 
-    // الانتقال العادي حسب حالة تسجيل الدخول
     if (AuthService.isLoggedIn) {
       Navigator.pushReplacement(
         context,

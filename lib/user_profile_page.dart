@@ -10,7 +10,7 @@ class UserProfilePage extends StatefulWidget {
   final String? userName;
 
   const UserProfilePage({Key? key, required this.userId, this.userName})
-    : super(key: key);
+      : super(key: key);
 
   @override
   _UserProfilePageState createState() => _UserProfilePageState();
@@ -79,7 +79,7 @@ class _UserProfilePageState extends State<UserProfilePage> {
     } catch (e) {
       if (mounted) {
         setState(() {
-          _error = 'حدث خطأ في الاتصال: $e';
+          _error = 'حدث خطأ في الاتصال';
         });
       }
     } finally {

@@ -86,7 +86,7 @@ class _PostsPageState extends State<PostsPage> {
             postsList = decoded['posts'];
           }
         } catch (e) {
-          print('❌ فشل تحليل data كنص JSON: $e');
+          print('❌ فشل تحليل data كنص JSON');
         }
       }
 
@@ -111,7 +111,7 @@ class _PostsPageState extends State<PostsPage> {
             final decodedList = json.decode(imagesField) as List;
             images = decodedList.map((e) => e.toString()).toList();
           } catch (e) {
-            print('❌ فشل تحليل images من نص JSON: $e');
+            print('❌ فشل تحليل images من نص JSON');
             images = [];
           }
         } else if (imagesField is List) {
@@ -159,8 +159,8 @@ class _PostsPageState extends State<PostsPage> {
         });
       }
     } catch (e) {
-      print("Error fetching posts by category: $e");
-      _showErrorMessage("حدث خطأ أثناء الاتصال بالخادم: $e");
+      print("حدث خطأ في الاتصال");
+      _showErrorMessage("حدث خطأ أثناء الاتصال بالخادم");
     } finally {
       if (mounted) {
         setState(() {
@@ -212,134 +212,135 @@ class _PostsPageState extends State<PostsPage> {
               ),
             )
           : _filteredPosts.isEmpty
-          ? Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const Icon(Icons.post_add, size: 80, color: Colors.grey),
-                  const SizedBox(height: 16),
-                  const Text(
-                    'لا توجد منشورات في هذا القسم',
-                    style: TextStyle(fontSize: 18, color: Colors.grey),
+              ? Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const Icon(Icons.post_add, size: 80, color: Colors.grey),
+                      const SizedBox(height: 16),
+                      const Text(
+                        'لا توجد منشورات في هذا القسم',
+                        style: TextStyle(fontSize: 18, color: Colors.grey),
+                      ),
+                      const SizedBox(height: 8),
+                      ElevatedButton(
+                        onPressed: () => _fetchPosts(refresh: true),
+                        child: const Text('إعادة تحميل'),
+                      ),
+                    ],
                   ),
-                  const SizedBox(height: 8),
-                  ElevatedButton(
-                    onPressed: () => _fetchPosts(refresh: true),
-                    child: const Text('إعادة تحميل'),
-                  ),
-                ],
-              ),
-            )
-          : RefreshIndicator(
-              onRefresh: () => _fetchPosts(refresh: true),
-              child: Column(
-                children: [
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 16,
-                      vertical: 8,
-                    ),
-                    child: InkWell(
-                      onTap: () async {
-                        await Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => CreatePostPage(),
-                          ),
-                        );
-                        await _fetchPosts(refresh: true);
-                      },
-                      child: Container(
-                        padding: const EdgeInsets.all(12),
-                        decoration: BoxDecoration(
-                          color: Theme.of(context).brightness == Brightness.dark
-                              ? Colors.grey[800]!
-                              : Colors.grey[200]!,
-                          borderRadius: BorderRadius.circular(12),
-                          border: Border.all(
-                            color:
-                                Theme.of(context).brightness == Brightness.dark
-                                ? Colors.grey[600]!
-                                : Colors.grey[300]!,
-                            width: 1,
-                          ),
+                )
+              : RefreshIndicator(
+                  onRefresh: () => _fetchPosts(refresh: true),
+                  child: Column(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 8,
                         ),
-                        child: Row(
-                          children: [
-                            CircleAvatar(
-                              radius: 20,
-                              backgroundColor: Colors.grey[300],
-                              child: Text(
-                                (AuthService.currentUser?['full_name'] ??
-                                        'مستخدم')
-                                    .substring(0, 1),
-                                style: const TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.black,
-                                ),
+                        child: InkWell(
+                          onTap: () async {
+                            await Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => CreatePostPage(),
+                              ),
+                            );
+                            await _fetchPosts(refresh: true);
+                          },
+                          child: Container(
+                            padding: const EdgeInsets.all(12),
+                            decoration: BoxDecoration(
+                              color: Theme.of(context).brightness ==
+                                      Brightness.dark
+                                  ? Colors.grey[800]!
+                                  : Colors.grey[200]!,
+                              borderRadius: BorderRadius.circular(12),
+                              border: Border.all(
+                                color: Theme.of(context).brightness ==
+                                        Brightness.dark
+                                    ? Colors.grey[600]!
+                                    : Colors.grey[300]!,
+                                width: 1,
                               ),
                             ),
-                            const SizedBox(width: 12),
-                            Expanded(
-                              child: Text(
-                                'بم تفكر...',
-                                style: TextStyle(
-                                  color:
-                                      Theme.of(context).brightness ==
-                                          Brightness.dark
-                                      ? Colors.grey[400]!
-                                      : Colors.grey[600]!,
-                                  fontSize: 16,
+                            child: Row(
+                              children: [
+                                CircleAvatar(
+                                  radius: 20,
+                                  backgroundColor: Colors.grey[300],
+                                  child: Text(
+                                    (AuthService.currentUser?['full_name'] ??
+                                            'مستخدم')
+                                        .substring(0, 1),
+                                    style: const TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.black,
+                                    ),
+                                  ),
                                 ),
-                              ),
+                                const SizedBox(width: 12),
+                                Expanded(
+                                  child: Text(
+                                    'بم تفكر...',
+                                    style: TextStyle(
+                                      color: Theme.of(context).brightness ==
+                                              Brightness.dark
+                                          ? Colors.grey[400]!
+                                          : Colors.grey[600]!,
+                                      fontSize: 16,
+                                    ),
+                                  ),
+                                ),
+                                Icon(
+                                  Icons.image,
+                                  color: Theme.of(context).primaryColor,
+                                ),
+                                const SizedBox(width: 8),
+                                Icon(
+                                  Icons.video_call,
+                                  color: Theme.of(context).primaryColor,
+                                ),
+                              ],
                             ),
-                            Icon(
-                              Icons.image,
-                              color: Theme.of(context).primaryColor,
-                            ),
-                            const SizedBox(width: 8),
-                            Icon(
-                              Icons.video_call,
-                              color: Theme.of(context).primaryColor,
-                            ),
-                          ],
+                          ),
                         ),
                       ),
-                    ),
-                  ),
-                  Expanded(
-                    child: ListView.builder(
-                      controller: _scrollController,
-                      // ✨ تم تقليل padding هنا ليتناسب مع الـ margin الخاص بالـ Card
-                      padding: const EdgeInsets.symmetric(horizontal: 8),
-                      itemCount: _filteredPosts.length + (_hasMore ? 1 : 0),
-                      itemBuilder: (context, index) {
-                        if (index == _filteredPosts.length) {
-                          return _isLoadingMore
-                              ? const Padding(
-                                  padding: EdgeInsets.all(16),
-                                  child: Center(
-                                    child: CircularProgressIndicator(),
-                                  ),
-                                )
-                              : const SizedBox.shrink();
-                        }
-                        return PostCardWidget(
-                          post: _filteredPosts[index],
-                          onDelete: () {
-                            setState(() {
-                              _filteredPosts.removeWhere(
-                                (p) => p['id'] == _filteredPosts[index]['id'],
-                              );
-                            });
+                      Expanded(
+                        child: ListView.builder(
+                          controller: _scrollController,
+                          // ✨ تم تقليل padding هنا ليتناسب مع الـ margin الخاص بالـ Card
+                          padding: const EdgeInsets.symmetric(horizontal: 8),
+                          itemCount: _filteredPosts.length + (_hasMore ? 1 : 0),
+                          itemBuilder: (context, index) {
+                            if (index == _filteredPosts.length) {
+                              return _isLoadingMore
+                                  ? const Padding(
+                                      padding: EdgeInsets.all(16),
+                                      child: Center(
+                                        child: CircularProgressIndicator(),
+                                      ),
+                                    )
+                                  : const SizedBox.shrink();
+                            }
+                            return PostCardWidget(
+                              post: _filteredPosts[index],
+                              onDelete: () {
+                                setState(() {
+                                  _filteredPosts.removeWhere(
+                                    (p) =>
+                                        p['id'] == _filteredPosts[index]['id'],
+                                  );
+                                });
+                              },
+                            );
                           },
-                        );
-                      },
-                    ),
+                        ),
+                      ),
+                    ],
                   ),
-                ],
-              ),
-            ),
+                ),
     );
   }
 }

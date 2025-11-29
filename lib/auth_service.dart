@@ -78,7 +78,7 @@ class AuthService {
         return body;
       }
     } catch (e) {
-      print(' خطأ في تحليل JSON: $e');
+      print(' خطأ في تحليل JSON');
     }
 
     // إذا فشل التحليل، أو لم يكن JSON، أنشئ رسالة خطأ عامة
@@ -155,7 +155,7 @@ class AuthService {
 
       return _handleResponse(response, 'create_post');
     } catch (e) {
-      print(' خطأ في إنشاء المنشور: $e');
+      print(' خطأ في إنشاء المنشور');
       return {
         'success': false,
         'message': 'خطأ في إنشاء المنشور: ${e.toString()}',
@@ -264,7 +264,7 @@ class AuthService {
           deviceToken = await FirebaseMessaging.instance.getToken();
         }
       } catch (e) {
-        print("⚠️ FCM token error: $e");
+        print("⚠️ FCM token error");
       }
 
       // === التحقق من صحة المدخلات ===
@@ -325,7 +325,7 @@ class AuthService {
             await _saveUserData(profileResult['data']);
           }
         } catch (e) {
-          print('⚠️ تعذر جلب الملف الشخصي بعد التسجيل: $e');
+          print('⚠️ تعذر جلب الملف الشخصي بعد التسجيل');
         }
 
         return {
@@ -337,7 +337,7 @@ class AuthService {
 
       return result;
     } catch (e) {
-      print(' خطأ في التسجيل: $e');
+      print(' خطأ في التسجيل');
       if (e.toString().contains('Failed to fetch')) {
         return {'success': false, 'message': '.تعذّر الاتصال بالخادم'};
       }
@@ -359,7 +359,7 @@ class AuthService {
       try {
         deviceToken = await FirebaseMessaging.instance.getToken();
       } catch (e) {
-        print("⚠️ Failed to get FCM token: $e");
+        print("⚠️ Failed to get FCM token");
       }
       String formattedEmailOrPhone = emailOrPhone;
       if (!isEmail(emailOrPhone)) {
@@ -406,7 +406,7 @@ class AuthService {
 
       return result;
     } catch (e) {
-      print(' خطأ في تسجيل الدخول: $e');
+      print(' خطأ في تسجيل الدخول');
       if (e.toString().contains('Failed to fetch')) {
         return {'success': false, 'message': '.تعذّر الاتصال بالخادم'};
       }
@@ -654,7 +654,7 @@ class AuthService {
 
       print(' تم حفظ بيانات المستخدم محلياً');
     } catch (e) {
-      print(' خطأ في حفظ بيانات المستخدم: $e');
+      print(' خطأ في حفظ بيانات المستخدم');
     }
   }
 
@@ -677,7 +677,7 @@ class AuthService {
         print(' تم تحميل بيانات المستخدم من التخزين المحلي');
       }
     } catch (e) {
-      print(' خطأ في تحميل بيانات المستخدم: $e');
+      print(' خطأ في تحميل بيانات المستخدم');
     }
   }
 
@@ -690,7 +690,7 @@ class AuthService {
       _currentUser = null;
       print(' تم تسجيل الخروج وحذف البيانات المحلية');
     } catch (e) {
-      print(' خطأ في تسجيل الخروج: $e');
+      print(' خطأ في تسجيل الخروج');
     }
   }
 
@@ -906,7 +906,7 @@ class AuthService {
 
       return result;
     } catch (e) {
-      print(' خطأ في جلب الإعلانات المميزة: $e');
+      print(' خطأ في جلب الإعلانات المميزة');
       return {
         'success': false,
         'message': 'خطأ في جلب الإعلانات المميزة: ${e.toString()}',
@@ -928,7 +928,7 @@ class AuthService {
 
       return _handleResponse(response, 'get_user_profile_and_posts');
     } catch (e) {
-      print(' خطأ في جلب ملف المستخدم: $e');
+      print(' خطأ في جلب ملف المستخدم');
       return {
         'success': false,
         'message': 'خطأ في جلب بيانات المستخدم: ${e.toString()}',
@@ -1275,7 +1275,7 @@ class AuthService {
       final response = await http.get(uri, headers: getHeaders(token));
       return _handleResponse(response, 'get_posts_by_category');
     } catch (e) {
-      return {'success': false, 'message': 'خطأ في جلب المنشورات: $e'};
+      return {'success': false, 'message': 'خطأ في جلب المنشورات'};
     }
   }
 
@@ -1345,7 +1345,7 @@ class AuthService {
 
       return result;
     } catch (e) {
-      print(' خطأ في تحديث الإعجاب: $e');
+      print(' خطأ في تحديث الإعجاب');
       return {
         'success': false,
         'message': 'خطأ في تحديث الإعجاب: ${e.toString()}',
@@ -1385,7 +1385,7 @@ class AuthService {
 
       return result;
     } catch (e) {
-      print(' خطأ في جلب إحصائيات المنشور: $e');
+      print(' خطأ في جلب إحصائيات المنشور');
       return {
         'success': false,
         'message': 'خطأ في جلب الإحصائيات: ${e.toString()}',
@@ -1441,7 +1441,7 @@ class AuthService {
 
       return result;
     } catch (e) {
-      print(' خطأ في إضافة التعليق: $e');
+      print(' خطأ في إضافة التعليق');
       return {
         'success': false,
         'message': 'خطأ في إضافة التعليق: ${e.toString()}',
@@ -1486,7 +1486,7 @@ class AuthService {
 
       return result;
     } catch (e) {
-      print(' خطأ في جلب التعليقات: $e');
+      print(' خطأ في جلب التعليقات');
       return {
         'success': false,
         'message': 'خطأ في جلب التعليقات: ${e.toString()}',
@@ -1552,7 +1552,7 @@ class AuthService {
 
       return _handleResponse(response, 'get_posts_by_category_id');
     } catch (e) {
-      print(' خطأ في جلب المنشورات حسب الـ ID: $e');
+      print(' خطأ في جلب المنشورات حسب الـ ID');
       return {
         'success': false,
         'message': 'خطأ في جلب المنشورات: ${e.toString()}',

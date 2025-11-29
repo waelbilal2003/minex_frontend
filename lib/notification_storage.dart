@@ -37,7 +37,7 @@ class NotificationStorage {
 
       print('✅ تم حفظ الإشعار بنجاح: ${notification['title']}');
     } catch (e) {
-      print('❌ خطأ في حفظ الإشعار: $e');
+      print('❌ خطأ في حفظ الإشعار');
     }
   }
 
@@ -54,7 +54,7 @@ class NotificationStorage {
       List<dynamic> jsonList = jsonDecode(jsonString);
       return jsonList.map((item) => Map<String, dynamic>.from(item)).toList();
     } catch (e) {
-      print('❌ خطأ في جلب الإشعارات: $e');
+      print('❌ خطأ في جلب الإشعارات');
       return [];
     }
   }
@@ -75,7 +75,7 @@ class NotificationStorage {
       String jsonString = jsonEncode(notifications);
       await prefs.setString(_notificationsKey, jsonString);
     } catch (e) {
-      print('❌ خطأ في تحديث حالة الإشعار: $e');
+      print('❌ خطأ في تحديث حالة الإشعار');
     }
   }
 
@@ -92,7 +92,7 @@ class NotificationStorage {
       String jsonString = jsonEncode(notifications);
       await prefs.setString(_notificationsKey, jsonString);
     } catch (e) {
-      print('❌ خطأ في تحديث الإشعارات: $e');
+      print('❌ خطأ في تحديث الإشعارات');
     }
   }
 
@@ -103,7 +103,7 @@ class NotificationStorage {
       await prefs.remove(_notificationsKey);
       print('✅ تم مسح جميع الإشعارات');
     } catch (e) {
-      print('❌ خطأ في مسح الإشعارات: $e');
+      print('❌ خطأ في مسح الإشعارات');
     }
   }
 
@@ -113,7 +113,7 @@ class NotificationStorage {
       List<Map<String, dynamic>> notifications = await getNotifications();
       return notifications.where((n) => n['is_read'] != 1).length;
     } catch (e) {
-      print('❌ خطأ في حساب الإشعارات غير المقروءة: $e');
+      print('❌ خطأ في حساب الإشعارات غير المقروءة');
       return 0;
     }
   }

@@ -41,7 +41,7 @@ class _FavoritesPageState extends State<FavoritesPage> {
         });
       }
     } catch (e) {
-      print('خطأ في تحميل المفضلة: $e');
+      print('حدث خطأ في الاتصال');
       if (mounted) {
         setState(() {
           _favoritePosts = [];
@@ -196,7 +196,7 @@ class _FavoritesPageState extends State<FavoritesPage> {
       final favoritesJson = json.encode(_favoritePosts);
       await prefs.setString('favorite_posts', favoritesJson);
     } catch (e) {
-      print('خطأ في حفظ المفضلة: $e');
+      print('حدث خطأ في الاتصال');
     }
   }
 }

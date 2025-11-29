@@ -166,7 +166,7 @@ class _SearchPageState extends State<SearchPage> {
       if (mounted) {
         ScaffoldMessenger.of(
           context,
-        ).showSnackBar(SnackBar(content: Text('خطأ في البحث: $e')));
+        ).showSnackBar(SnackBar(content: Text('خطأ في البحث:')));
       }
     } finally {
       if (mounted) {

@@ -75,7 +75,7 @@ class _HomePageState extends State<HomePage> {
         }
       }
     } catch (e) {
-      print(' خطأ في جلب إعلانات VIP: $e');
+      print('حدث خطأ في الاتصال');
       if (mounted) {
         setState(() {
           _vipAds = [];
@@ -99,7 +99,7 @@ class _HomePageState extends State<HomePage> {
           _isLoading = false;
         });
       }
-      print('خطأ في تحميل بيانات المستخدم: $e');
+      print('حدث خطأ في الاتصال');
     }
   }
 
@@ -190,11 +190,11 @@ class _HomePageState extends State<HomePage> {
         }
       }
     } catch (e) {
-      print("Error in _fetchPosts: $e");
+      print("حدث خطأ في الاتصال");
       if (mounted) {
         setState(() => _isPostsLoading = false);
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('حدث خطأ أثناء الاتصال بالخادم: $e')),
+          SnackBar(content: Text('حدث خطأ أثناء الاتصال بالخادم ')),
         );
       }
     }

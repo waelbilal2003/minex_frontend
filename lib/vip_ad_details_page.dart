@@ -134,13 +134,11 @@ class _VipAdDetailsPageState extends State<VipAdDetailsPage> {
   void _initializeVideoController(String url) {
     _videoController?.dispose();
     _videoController = VideoPlayerController.networkUrl(Uri.parse(url))
-      ..initialize()
-          .then((_) {
-            if (mounted) setState(() {});
-          })
-          .catchError((e) {
-            debugPrint('❌ فشل تحميل الفيديو: $e');
-          });
+      ..initialize().then((_) {
+        if (mounted) setState(() {});
+      }).catchError((e) {
+        debugPrint('❌ فشل تحميل الفيديو');
+      });
   }
 
   @override
@@ -354,7 +352,7 @@ class _VipAdDetailsPageState extends State<VipAdDetailsPage> {
                       const Center(child: CircularProgressIndicator()),
                   errorWidget: (context, url, error) {
                     print('❌ خطأ في تحميل الصورة: $url');
-                    print('   الخطأ: $error');
+
                     return Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [

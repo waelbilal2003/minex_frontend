@@ -195,7 +195,7 @@ class FirebaseApi {
 
       print(' تم تهيئة Firebase Messaging بنجاح');
     } catch (e) {
-      print(' خطأ في تهيئة الإشعارات: $e');
+      print('حدث خطأ في الاتصال');
     }
   }
 }

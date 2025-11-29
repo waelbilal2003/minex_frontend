@@ -1050,7 +1050,7 @@ class _PostCardWidgetSearch extends State<PostCardWidgetSearch> {
         // لا حاجة لـ setState لأننا سنعتمد على widget.post في العرض
       }
     } catch (e) {
-      print('❌ خطأ في تحديث عدد التعليقات: $e');
+      print('❌ خطأ في تحديث عدد التعليقات');
     }
   }
 
@@ -1068,7 +1068,7 @@ class _PostCardWidgetSearch extends State<PostCardWidgetSearch> {
         });
       }
     } catch (e) {
-      print('خطأ في فحص المفضلة: $e');
+      print('خطأ في فحص المفضلة');
     }
   }
 
@@ -1107,7 +1107,7 @@ class _PostCardWidgetSearch extends State<PostCardWidgetSearch> {
         });
       }
     } catch (e) {
-      print('خطأ في تحديث المفضلة: $e');
+      print('خطأ في تحديث المفضلة');
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('حدث خطأ في تحديث المفضلة'),

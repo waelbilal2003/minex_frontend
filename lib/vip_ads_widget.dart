@@ -58,7 +58,7 @@ class _VipAdsWidgetState extends State<VipAdsWidget> {
         setState(() {
           _isLoading = false;
         });
-        print("Error fetching VIP ads: $e");
+        print("حدث خطأ في الاتصال");
       }
     }
   }
@@ -97,50 +97,50 @@ class _VipAdsWidgetState extends State<VipAdsWidget> {
       child: _isLoading
           ? const Center(child: CircularProgressIndicator())
           : _vipAds.isEmpty
-          ? Center(
-              child: Text(
-                'لا توجد إعلانات VIP حالياً.',
-                style: TextStyle(fontSize: 16, color: Colors.grey[600]),
-              ),
-            )
-          : Column(
-              children: [
-                const SizedBox(height: 8),
-                Expanded(
-                  child: PageView.builder(
-                    controller: _vipAdsController,
-                    itemCount: _vipAds.length,
-                    onPageChanged: (index) {
-                      setState(() {
-                        _currentVipAdIndex = index;
-                      });
-                    },
-                    itemBuilder: (context, index) {
-                      return _buildVipAdCard(_vipAds[index]);
-                    },
+              ? Center(
+                  child: Text(
+                    'لا توجد إعلانات VIP حالياً.',
+                    style: TextStyle(fontSize: 16, color: Colors.grey[600]),
                   ),
-                ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: _vipAds.asMap().entries.map((entry) {
-                    return Container(
-                      width: 8,
-                      height: 8,
-                      margin: const EdgeInsets.symmetric(
-                        horizontal: 4,
-                        vertical: 8,
+                )
+              : Column(
+                  children: [
+                    const SizedBox(height: 8),
+                    Expanded(
+                      child: PageView.builder(
+                        controller: _vipAdsController,
+                        itemCount: _vipAds.length,
+                        onPageChanged: (index) {
+                          setState(() {
+                            _currentVipAdIndex = index;
+                          });
+                        },
+                        itemBuilder: (context, index) {
+                          return _buildVipAdCard(_vipAds[index]);
+                        },
                       ),
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        color: _currentVipAdIndex == entry.key
-                            ? widget.primaryColor
-                            : Colors.grey,
-                      ),
-                    );
-                  }).toList(),
+                    ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: _vipAds.asMap().entries.map((entry) {
+                        return Container(
+                          width: 8,
+                          height: 8,
+                          margin: const EdgeInsets.symmetric(
+                            horizontal: 4,
+                            vertical: 8,
+                          ),
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            color: _currentVipAdIndex == entry.key
+                                ? widget.primaryColor
+                                : Colors.grey,
+                          ),
+                        );
+                      }).toList(),
+                    ),
+                  ],
                 ),
-              ],
-            ),
     );
   }
 
@@ -150,9 +150,8 @@ class _VipAdsWidgetState extends State<VipAdsWidget> {
     final String? title = ad['title']?.toString();
 
     // ✨ استخدام الدالة الجديدة الآمنة لبناء الرابط ✨
-    final String fullImageUrl = imageUrl != null
-        ? _getFullImageUrl(imageUrl)
-        : '';
+    final String fullImageUrl =
+        imageUrl != null ? _getFullImageUrl(imageUrl) : '';
 
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16),

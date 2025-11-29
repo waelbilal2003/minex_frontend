@@ -92,8 +92,8 @@ class _CommentsPageState extends State<CommentsPage> {
         _showErrorMessage('خطأ في الاتصال بالخادم: ${response.statusCode}');
       }
     } catch (e) {
-      print('Error loading comments: $e');
-      _showErrorMessage('حدث خطأ غير متوقع: $e');
+      print('حدث خطأ في الاتصال');
+      _showErrorMessage('حدث خطأ في الاتصال');
     } finally {
       if (mounted) {
         setState(() {
@@ -148,7 +148,7 @@ class _CommentsPageState extends State<CommentsPage> {
         _showErrorMessage(result['message'] ?? 'فشل إضافة التعليق');
       }
     } catch (e) {
-      _showErrorMessage('حدث خطأ غير متوقع: $e');
+      _showErrorMessage('حدث خطأ في الاتصال');
     } finally {
       if (mounted) setState(() => _isSubmitting = false);
     }
@@ -186,8 +186,8 @@ class _CommentsPageState extends State<CommentsPage> {
         });
       }
     } catch (e) {
-      print('Error toggling like: $e');
-      _showErrorMessage('حدث خطأ غير متوقع: $e');
+      print('حدث خطأ في الاتصال');
+      _showErrorMessage('حدث خطأ في الاتصال');
       setState(() {
         _comments[commentIndex]['user_liked'] = currentLikedStatus;
         _comments[commentIndex]['likes_count'] = currentLikesCount;

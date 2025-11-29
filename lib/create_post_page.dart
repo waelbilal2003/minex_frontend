@@ -150,6 +150,31 @@ class _CreatePostPageState extends State<CreatePostPage> {
     }
   }
 
+  Widget _buildDisclaimer() {
+    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
+    return Container(
+      width: double.infinity,
+      color:
+          isDarkMode ? Colors.grey[850] : Colors.blue.shade50, // لون خلفية لطيف
+      padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      child: Row(
+        children: [
+          Expanded(
+            child: Text(
+              "انرجوا منكم الالتزام بمعايير الاخلاق و عدم نشر أي معلومات أو صور مضللة أو فاضحة بما يخص المنتج، شاكرين حسنَ تعاونكم  تحت طائلة الحذف و المسؤولية .",
+              style: TextStyle(
+                fontSize: 12, // حجم نص أصغر ليناسب الشريط
+                color: isDarkMode ? Colors.white70 : Colors.black87,
+              ),
+              textAlign: TextAlign.center, // محاذاة النص في المنتصف
+            ),
+          ),
+          // تم حذف IconButton هنا، لذا لا يوجد زر إغلاق
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -164,6 +189,10 @@ class _CreatePostPageState extends State<CreatePostPage> {
           key: _formKey,
           child: ListView(
             children: [
+              // إضافة شريط التنبيه هنا
+              _buildDisclaimer(),
+              SizedBox(height: 16),
+
               // قسم اختيار السوق/القسم
               Text(
                 'اختر القسم:',

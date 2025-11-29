@@ -29,7 +29,7 @@ class PostUtils {
 
       return posts.map((p) => _standardizeSinglePost(p)).toList();
     } catch (e) {
-      print('❌ خطأ في standardizePostsResponse: $e');
+      print('حدث خطأ في الاتصال');
       return [];
     }
   }
@@ -39,8 +39,7 @@ class PostUtils {
   ) {
     final userMap = rawPost['user'] ?? {};
 
-    String userName =
-        rawPost['user_name'] ??
+    String userName = rawPost['user_name'] ??
         userMap['full_name'] ??
         userMap['name'] ??
         'مستخدم';

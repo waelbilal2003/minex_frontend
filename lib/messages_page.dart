@@ -148,7 +148,7 @@ class _MessagesPageState extends State<MessagesPage> {
         }
       }
     } catch (e) {
-      if (mounted) setState(() => _error = 'حدث خطأ ما: $e');
+      if (mounted) setState(() => _error = 'حدث خطأ في الاتصال');
     } finally {
       if (mounted) setState(() => _isLoading = false);
     }

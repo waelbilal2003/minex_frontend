@@ -459,7 +459,7 @@ class _ProfilePageState extends State<ProfilePage> {
                 children: [
                   Icon(Icons.email, color: Colors.blue),
                   SizedBox(width: 8),
-                  Text('support@minex.com'),
+                  Text('minexsy00@gmial.com'),
                 ],
               ),
               SizedBox(height: 8),
@@ -467,7 +467,7 @@ class _ProfilePageState extends State<ProfilePage> {
                 children: [
                   Icon(Icons.phone, color: Colors.green),
                   SizedBox(width: 8),
-                  Text('+963 11 123 4567'),
+                  Text('+963960084890'),
                 ],
               ),
             ],

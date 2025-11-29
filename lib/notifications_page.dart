@@ -80,7 +80,7 @@ class _NotificationsPageState extends State<NotificationsPage> {
           print('📱 عدد الإشعارات من السيرفر: ${serverNotifications.length}');
         }
       } catch (e) {
-        print('⚠️ لم يتم الحصول على إشعارات من السيرفر: $e');
+        print('⚠️ لم يتم الحصول على إشعارات من السيرفر');
         // نكمل حتى لو فشل السيرفر
       }
 
@@ -129,8 +129,8 @@ class _NotificationsPageState extends State<NotificationsPage> {
 
       print('✅ إجمالي الإشعارات المعروضة: ${_notifications.length}');
     } catch (e) {
-      print('❌ خطأ في تحميل الإشعارات: $e');
-      _showErrorMessage('خطأ في تحميل الإشعارات: $e');
+      print('❌ خطأ في تحميل الإشعارات');
+      _showErrorMessage('خطأ في تحميل الإشعارات');
     }
   }
 
@@ -151,7 +151,7 @@ class _NotificationsPageState extends State<NotificationsPage> {
       try {
         await AuthService.markNotificationsAsRead();
       } catch (e) {
-        print('⚠️ لم يتم تحديث السيرفر: $e');
+        print('⚠️ لم يتم تحديث السيرفر');
       }
 
       setState(() {
@@ -165,7 +165,7 @@ class _NotificationsPageState extends State<NotificationsPage> {
         const SnackBar(content: Text('تم تحديد جميع الإشعارات كمقروءة')),
       );
     } catch (e) {
-      _showErrorMessage('خطأ في تحديث الإشعارات: $e');
+      _showErrorMessage('خطأ في تحديث الإشعارات');
     }
   }
 
@@ -187,7 +187,7 @@ class _NotificationsPageState extends State<NotificationsPage> {
             notificationIds: [notification['id']]);
       } catch (e) {
         // تجاهل خطأ السيرفر
-        print('⚠️ لم يتم تحديث السيرفر: $e');
+        print('⚠️ لم يتم تحديث السيرفر');
       }
 
       setState(() {
@@ -195,7 +195,7 @@ class _NotificationsPageState extends State<NotificationsPage> {
         if (_unreadCount > 0) _unreadCount--;
       });
     } catch (e) {
-      print('❌ خطأ في تحديث حالة القراءة: $e');
+      print('❌ خطأ في تحديث حالة القراءة');
     }
   }
 
