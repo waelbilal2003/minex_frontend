@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:app_links/app_links.dart';
 import 'signup_page.dart';
 // ملفات المشروع
 import 'firebase_options.dart';
@@ -49,8 +50,69 @@ Future<void> main() async {
   );
 }
 
-class MyApp extends StatelessWidget {
+class MyApp extends StatefulWidget {
   const MyApp({Key? key}) : super(key: key);
+
+  @override
+  _MyAppState createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> {
+  final AppLinks _appLinks = AppLinks();
+  StreamSubscription<AppLink>? _linkSubscription; // 🔥 يصغي إلى AppLink
+  String? _initialLink;
+
+  @override
+  void initState() {
+    super.initState();
+    _initDeepLinks();
+  }
+
+  @override
+  void dispose() {
+    _linkSubscription?.cancel();
+    super.dispose();
+  }
+
+  Future<void> _initDeepLinks() async {
+    // 🔥 الطريقة الرسمية الصحيحة: استخدام getInitialAppLink()
+    try {
+      final AppLink? initialAppLink = await _appLinks.getInitialAppLink();
+      if (initialAppLink != null) {
+        debugPrint('Initial link: ${initialAppLink.link}');
+        // نستخدم .link للحصول على Uri ثم نحوله إلى String
+        _handleDeepLink(initialAppLink.link.toString());
+      }
+    } catch (e) {
+      debugPrint('Error getting initial link: $e');
+    }
+
+    // 🔥 الطريقة الرسمية الصحيحة: استخدام appLinkStream
+    _linkSubscription = _appLinks.appLinkStream.listen((AppLink appLink) {
+      debugPrint('Received link: ${appLink.link}');
+      // نحول Uri إلى String لمعالجته
+      _handleDeepLink(appLink.link.toString());
+    }, onError: (err) {
+      debugPrint('Error listening to link stream: $err');
+    });
+  }
+
+  void _handleDeepLink(String link) {
+    // التحقق من أن الرابط يبدأ بـ https://minexsy.site/posts/
+    if (link.startsWith('https://minexsy.site/posts/')) {
+      // استخراج الـ ID من الرابط
+      final postIdString = link.substring('https://minexsy.site/posts/'.length);
+      final postId = int.tryParse(postIdString);
+
+      // إذا كان الـ ID صحيحاً، انتقل إلى صفحة التفاصيل
+      if (postId != null) {
+        // حفظ الرابط لاستخدامه لاحقاً بعد بناء الواجهة
+        setState(() {
+          _initialLink = link;
+        });
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -87,7 +149,7 @@ class MyApp extends StatelessWidget {
         ),
       ),
       navigatorKey: navigatorKey,
-      home: const SplashScreen(),
+      home: SplashScreen(initialLink: _initialLink),
       routes: {'/notifications': (context) => const NotificationsPage()},
       // إضافة onGenerateRoute للتعامل مع الروابط الديناميكية
       onGenerateRoute: (settings) {
@@ -113,7 +175,9 @@ class MyApp extends StatelessWidget {
 }
 
 class SplashScreen extends StatefulWidget {
-  const SplashScreen({Key? key}) : super(key: key);
+  final String? initialLink;
+
+  const SplashScreen({Key? key, this.initialLink}) : super(key: key);
 
   @override
   _SplashScreenState createState() => _SplashScreenState();
@@ -141,6 +205,27 @@ class _SplashScreenState extends State<SplashScreen> {
 
     if (!mounted) return;
 
+    // التحقق من وجود رابط أولي
+    if (widget.initialLink != null) {
+      final link = widget.initialLink!;
+      if (link.startsWith('https://minexsy.site/posts/')) {
+        final postIdString =
+            link.substring('https://minexsy.site/posts/'.length);
+        final postId = int.tryParse(postIdString);
+
+        if (postId != null) {
+          // الانتقال إلى صفحة تفاصيل المنشور
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(
+                builder: (context) => PostDetailsPage(postId: postId)),
+          );
+          return;
+        }
+      }
+    }
+
+    // الانتقال العادي حسب حالة تسجيل الدخول
     if (AuthService.isLoggedIn) {
       Navigator.pushReplacement(
         context,
