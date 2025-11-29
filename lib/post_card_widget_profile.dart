@@ -572,7 +572,7 @@ class _PostCardWidgetStateProfile extends State<PostCardWidgetProfile> {
                       final postTitle = widget.post['title'] ??
                           widget.post['content']?.substring(0, 30) ??
                           'منشور';
-                      final url = 'https://minexsy.site/post/$postId';
+                      final url = 'https://minexsy.site/posts/$postId';
 
                       // نص المشاركة الجذاب
                       final shareText =
