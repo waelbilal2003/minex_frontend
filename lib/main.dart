@@ -12,6 +12,9 @@ import 'firebase_api.dart';
 // مفتاح عام للتنقل
 import 'app_globals.dart';
 
+import 'post_details_page.dart';
+
+// في دالة main، بعد تهيئة Firebase
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
@@ -86,6 +89,25 @@ class MyApp extends StatelessWidget {
       navigatorKey: navigatorKey,
       home: const SplashScreen(),
       routes: {'/notifications': (context) => const NotificationsPage()},
+      // إضافة onGenerateRoute للتعامل مع الروابط الديناميكية
+      onGenerateRoute: (settings) {
+        // التحقق من أن المسار يبدأ بـ /posts/
+        if (settings.name?.startsWith('/posts/') == true) {
+          // استخراج الـ ID من المسار
+          final postIdString = settings.name?.substring('/posts/'.length);
+          final postId = int.tryParse(postIdString ?? '');
+
+          // إذا كان الـ ID صحيحاً، انتقل إلى صفحة التفاصيل
+          if (postId != null) {
+            return MaterialPageRoute(
+              builder: (context) => PostDetailsPage(postId: postId),
+            );
+          }
+        }
+
+        // إذا لم يكن المسار متطابقاً، استخدم المسار الافتراضي
+        return null;
+      },
     );
   }
 }
