@@ -60,32 +60,51 @@ class AuthService {
   }
 
   // معالج الاستجابة الموحد
+  // معالج الاستجابة الموحد والمحسّن
   static Map<String, dynamic> _handleResponse(
     http.Response response,
     String action,
   ) {
+    // طباعة التفاصيل الكاملة للمطور فقط في الـ Console
     print('📥 استجابة $action:');
     print('Status Code: ${response.statusCode}');
     print('Headers: ${response.headers}');
     print('Body: ${response.body}');
 
-    // حاول تحليل الـ JSON بغض النظر عن كود الحالة
+    // حاول تحليل الـ JSON
     try {
       final dynamic body = json.decode(response.body);
 
       // إذا كان الجسم كائن JSON صالح، أعده كما هو
       if (body is Map<String, dynamic>) {
+        // التأكد من أن الرسالة التي للمستخدم بسيطة
+        if (body['message'] != null &&
+            body['message'].toString().length > 100) {
+          body['message'] = 'حدث خطأ، يرجى المحاولة مرة أخرى.';
+        }
         return body;
       }
     } catch (e) {
-      print(' خطأ في تحليل JSON');
+      print(' خطأ في تحليل JSON: $e'); // طباعة الخطأ الحقيقي للمطور
     }
 
-    // إذا فشل التحليل، أو لم يكن JSON، أنشئ رسالة خطأ عامة
+    // إذا فشل التحليل، أنشئ رسالة خطأ بسيطة للمستخدم
+    String userMessage = 'حدث خطأ، يرجى المحاولة لاحقًا.';
+
+    // تحديد رسالة بناءً على كود الحالة (لأهم الأخطاء)
+    if (response.statusCode == 404) {
+      userMessage = 'الصفحة المطلوبة غير موجودة.';
+    } else if (response.statusCode == 401) {
+      userMessage = 'جلسة منتهية، يرجى إعادة تسجيل الدخول.';
+    } else if (response.statusCode == 403) {
+      userMessage = 'ليس لديك صلاحية للقيام بهذه العملية.';
+    } else if (response.statusCode >= 500) {
+      userMessage = 'خدمة غير متوفرة حاليًا، يرجى المحاولة لاحقًا.';
+    }
+
     return {
       'success': false,
-      'message':
-          'خطأ في الخادم (${response.statusCode}): ${response.reasonPhrase}',
+      'message': userMessage, // رسالة بسيطة للمستخدم
       'data': null,
     };
   }
@@ -155,10 +174,27 @@ class AuthService {
 
       return _handleResponse(response, 'create_post');
     } catch (e) {
-      print(' خطأ في إنشاء المنشور');
+      // طباعة الخطأ الحقيقي للمطور في الـ Console
+      print('⚠️ خطأ تقني في [اسم الدالة هنا]: $e');
+
+      String userMessage = 'حدث خطأ غير متوقع، يرجى المحاولة مرة أخرى.';
+
+      // تحديد نوع الخطأ بناءً على نص الاستثناء
+      final errorString = e.toString().toLowerCase();
+
+      if (errorString.contains('socketexception') ||
+          errorString.contains('connection refused')) {
+        userMessage =
+            'لا يوجد اتصال بالإنترنت. يرجى التحقق من الشبكة والمحاولة مرة أخرى.';
+      } else if (errorString.contains('timeout')) {
+        userMessage = 'استغرق الأمر وقتًا طويلاً، يرجى المحاولة مرة أخرى.';
+      } else if (errorString.contains('failed to fetch')) {
+        userMessage = 'فشل الاتصال بالخادم، يرجى المحاولة لاحقًا.';
+      }
+
       return {
         'success': false,
-        'message': 'خطأ في إنشاء المنشور: ${e.toString()}',
+        'message': userMessage, // رسالة واضحة ومناسبة للمستخدم
       };
     }
   }
@@ -173,9 +209,27 @@ class AuthService {
 
       return _handleResponse(response, 'get_posts');
     } catch (e) {
+      // طباعة الخطأ الحقيقي للمطور في الـ Console
+      print('⚠️ خطأ تقني في [اسم الدالة هنا]: $e');
+
+      String userMessage = 'حدث خطأ غير متوقع، يرجى المحاولة مرة أخرى.';
+
+      // تحديد نوع الخطأ بناءً على نص الاستثناء
+      final errorString = e.toString().toLowerCase();
+
+      if (errorString.contains('socketexception') ||
+          errorString.contains('connection refused')) {
+        userMessage =
+            'لا يوجد اتصال بالإنترنت. يرجى التحقق من الشبكة والمحاولة مرة أخرى.';
+      } else if (errorString.contains('timeout')) {
+        userMessage = 'استغرق الأمر وقتًا طويلاً، يرجى المحاولة مرة أخرى.';
+      } else if (errorString.contains('failed to fetch')) {
+        userMessage = 'فشل الاتصال بالخادم، يرجى المحاولة لاحقًا.';
+      }
+
       return {
         'success': false,
-        'message': 'خطأ في جلب المنشورات: ${e.toString()}',
+        'message': userMessage, // رسالة واضحة ومناسبة للمستخدم
       };
     }
   }
@@ -196,9 +250,27 @@ class AuthService {
 
       return _handleResponse(response, 'deletePost');
     } catch (e) {
+      // طباعة الخطأ الحقيقي للمطور في الـ Console
+      print('⚠️ خطأ تقني في [اسم الدالة هنا]: $e');
+
+      String userMessage = 'حدث خطأ غير متوقع، يرجى المحاولة مرة أخرى.';
+
+      // تحديد نوع الخطأ بناءً على نص الاستثناء
+      final errorString = e.toString().toLowerCase();
+
+      if (errorString.contains('socketexception') ||
+          errorString.contains('connection refused')) {
+        userMessage =
+            'لا يوجد اتصال بالإنترنت. يرجى التحقق من الشبكة والمحاولة مرة أخرى.';
+      } else if (errorString.contains('timeout')) {
+        userMessage = 'استغرق الأمر وقتًا طويلاً، يرجى المحاولة مرة أخرى.';
+      } else if (errorString.contains('failed to fetch')) {
+        userMessage = 'فشل الاتصال بالخادم، يرجى المحاولة لاحقًا.';
+      }
+
       return {
         'success': false,
-        'message': 'خطأ في حذف المنشور: ${e.toString()}',
+        'message': userMessage, // رسالة واضحة ومناسبة للمستخدم
       };
     }
   }
@@ -213,9 +285,27 @@ class AuthService {
 
       return _handleResponse(response, 'getCategories');
     } catch (e) {
+      // طباعة الخطأ الحقيقي للمطور في الـ Console
+      print('⚠️ خطأ تقني في [اسم الدالة هنا]: $e');
+
+      String userMessage = 'حدث خطأ غير متوقع، يرجى المحاولة مرة أخرى.';
+
+      // تحديد نوع الخطأ بناءً على نص الاستثناء
+      final errorString = e.toString().toLowerCase();
+
+      if (errorString.contains('socketexception') ||
+          errorString.contains('connection refused')) {
+        userMessage =
+            'لا يوجد اتصال بالإنترنت. يرجى التحقق من الشبكة والمحاولة مرة أخرى.';
+      } else if (errorString.contains('timeout')) {
+        userMessage = 'استغرق الأمر وقتًا طويلاً، يرجى المحاولة مرة أخرى.';
+      } else if (errorString.contains('failed to fetch')) {
+        userMessage = 'فشل الاتصال بالخادم، يرجى المحاولة لاحقًا.';
+      }
+
       return {
         'success': false,
-        'message': 'خطأ في جلب الفئات: ${e.toString()}',
+        'message': userMessage, // رسالة واضحة ومناسبة للمستخدم
       };
     }
   }
@@ -233,9 +323,27 @@ class AuthService {
 
       return _handleResponse(response, 'getVipAds');
     } catch (e) {
+      // طباعة الخطأ الحقيقي للمطور في الـ Console
+      print('⚠️ خطأ تقني في [اسم الدالة هنا]: $e');
+
+      String userMessage = 'حدث خطأ غير متوقع، يرجى المحاولة مرة أخرى.';
+
+      // تحديد نوع الخطأ بناءً على نص الاستثناء
+      final errorString = e.toString().toLowerCase();
+
+      if (errorString.contains('socketexception') ||
+          errorString.contains('connection refused')) {
+        userMessage =
+            'لا يوجد اتصال بالإنترنت. يرجى التحقق من الشبكة والمحاولة مرة أخرى.';
+      } else if (errorString.contains('timeout')) {
+        userMessage = 'استغرق الأمر وقتًا طويلاً، يرجى المحاولة مرة أخرى.';
+      } else if (errorString.contains('failed to fetch')) {
+        userMessage = 'فشل الاتصال بالخادم، يرجى المحاولة لاحقًا.';
+      }
+
       return {
         'success': false,
-        'message': 'خطأ في جلب الإعلانات المميزة: ${e.toString()}',
+        'message': userMessage, // رسالة واضحة ومناسبة للمستخدم
       };
     }
   }
@@ -264,12 +372,28 @@ class AuthService {
           deviceToken = await FirebaseMessaging.instance.getToken();
         }
       } catch (e) {
-        print("⚠️ FCM token error");
-      }
+        // طباعة الخطأ الحقيقي للمطور في الـ Console
+        print('⚠️ خطأ تقني في [اسم الدالة هنا]: $e');
 
-      // === التحقق من صحة المدخلات ===
-      if (gender != 'ذكر' && gender != 'أنثى') {
-        return {'success': false, 'message': 'قيمة الجنس غير صالحة'};
+        String userMessage = 'حدث خطأ غير متوقع، يرجى المحاولة مرة أخرى.';
+
+        // تحديد نوع الخطأ بناءً على نص الاستثناء
+        final errorString = e.toString().toLowerCase();
+
+        if (errorString.contains('socketexception') ||
+            errorString.contains('connection refused')) {
+          userMessage =
+              'لا يوجد اتصال بالإنترنت. يرجى التحقق من الشبكة والمحاولة مرة أخرى.';
+        } else if (errorString.contains('timeout')) {
+          userMessage = 'استغرق الأمر وقتًا طويلاً، يرجى المحاولة مرة أخرى.';
+        } else if (errorString.contains('failed to fetch')) {
+          userMessage = 'فشل الاتصال بالخادم، يرجى المحاولة لاحقًا.';
+        }
+
+        return {
+          'success': false,
+          'message': userMessage, // رسالة واضحة ومناسبة للمستخدم
+        };
       }
 
       String formattedEmailOrPhone = emailOrPhone;
@@ -337,13 +461,27 @@ class AuthService {
 
       return result;
     } catch (e) {
-      print(' خطأ في التسجيل');
-      if (e.toString().contains('Failed to fetch')) {
-        return {'success': false, 'message': '.تعذّر الاتصال بالخادم'};
+      // طباعة الخطأ الحقيقي للمطور في الـ Console
+      print('⚠️ خطأ تقني في [اسم الدالة هنا]: $e');
+
+      String userMessage = 'حدث خطأ غير متوقع، يرجى المحاولة مرة أخرى.';
+
+      // تحديد نوع الخطأ بناءً على نص الاستثناء
+      final errorString = e.toString().toLowerCase();
+
+      if (errorString.contains('socketexception') ||
+          errorString.contains('connection refused')) {
+        userMessage =
+            'لا يوجد اتصال بالإنترنت. يرجى التحقق من الشبكة والمحاولة مرة أخرى.';
+      } else if (errorString.contains('timeout')) {
+        userMessage = 'استغرق الأمر وقتًا طويلاً، يرجى المحاولة مرة أخرى.';
+      } else if (errorString.contains('failed to fetch')) {
+        userMessage = 'فشل الاتصال بالخادم، يرجى المحاولة لاحقًا.';
       }
+
       return {
         'success': false,
-        'message': 'خطأ في الاتصال بالخادم: ${e.toString()}',
+        'message': userMessage, // رسالة واضحة ومناسبة للمستخدم
       };
     }
   }
@@ -434,9 +572,27 @@ class AuthService {
 
       return _handleResponse(response, 'verify_token');
     } catch (e) {
+      // طباعة الخطأ الحقيقي للمطور في الـ Console
+      print('⚠️ خطأ تقني في [اسم الدالة هنا]: $e');
+
+      String userMessage = 'حدث خطأ غير متوقع، يرجى المحاولة مرة أخرى.';
+
+      // تحديد نوع الخطأ بناءً على نص الاستثناء
+      final errorString = e.toString().toLowerCase();
+
+      if (errorString.contains('socketexception') ||
+          errorString.contains('connection refused')) {
+        userMessage =
+            'لا يوجد اتصال بالإنترنت. يرجى التحقق من الشبكة والمحاولة مرة أخرى.';
+      } else if (errorString.contains('timeout')) {
+        userMessage = 'استغرق الأمر وقتًا طويلاً، يرجى المحاولة مرة أخرى.';
+      } else if (errorString.contains('failed to fetch')) {
+        userMessage = 'فشل الاتصال بالخادم، يرجى المحاولة لاحقًا.';
+      }
+
       return {
         'success': false,
-        'message': 'خطأ في التحقق من التوكن: ${e.toString()}',
+        'message': userMessage, // رسالة واضحة ومناسبة للمستخدم
       };
     }
   }
@@ -471,9 +627,27 @@ class AuthService {
 
       return _handleResponse(response, 'forgot_password');
     } catch (e) {
+      // طباعة الخطأ الحقيقي للمطور في الـ Console
+      print('⚠️ خطأ تقني في [اسم الدالة هنا]: $e');
+
+      String userMessage = 'حدث خطأ غير متوقع، يرجى المحاولة مرة أخرى.';
+
+      // تحديد نوع الخطأ بناءً على نص الاستثناء
+      final errorString = e.toString().toLowerCase();
+
+      if (errorString.contains('socketexception') ||
+          errorString.contains('connection refused')) {
+        userMessage =
+            'لا يوجد اتصال بالإنترنت. يرجى التحقق من الشبكة والمحاولة مرة أخرى.';
+      } else if (errorString.contains('timeout')) {
+        userMessage = 'استغرق الأمر وقتًا طويلاً، يرجى المحاولة مرة أخرى.';
+      } else if (errorString.contains('failed to fetch')) {
+        userMessage = 'فشل الاتصال بالخادم، يرجى المحاولة لاحقًا.';
+      }
+
       return {
         'success': false,
-        'message': 'خطأ في استعادة كلمة المرور: ${e.toString()}',
+        'message': userMessage, // رسالة واضحة ومناسبة للمستخدم
       };
     }
   }
@@ -508,9 +682,27 @@ class AuthService {
 
       return result;
     } catch (e) {
+      // طباعة الخطأ الحقيقي للمطور في الـ Console
+      print('⚠️ خطأ تقني في [اسم الدالة هنا]: $e');
+
+      String userMessage = 'حدث خطأ غير متوقع، يرجى المحاولة مرة أخرى.';
+
+      // تحديد نوع الخطأ بناءً على نص الاستثناء
+      final errorString = e.toString().toLowerCase();
+
+      if (errorString.contains('socketexception') ||
+          errorString.contains('connection refused')) {
+        userMessage =
+            'لا يوجد اتصال بالإنترنت. يرجى التحقق من الشبكة والمحاولة مرة أخرى.';
+      } else if (errorString.contains('timeout')) {
+        userMessage = 'استغرق الأمر وقتًا طويلاً، يرجى المحاولة مرة أخرى.';
+      } else if (errorString.contains('failed to fetch')) {
+        userMessage = 'فشل الاتصال بالخادم، يرجى المحاولة لاحقًا.';
+      }
+
       return {
         'success': false,
-        'message': 'خطأ في جلب الملف الشخصي: ${e.toString()}',
+        'message': userMessage, // رسالة واضحة ومناسبة للمستخدم
       };
     }
   }
@@ -551,9 +743,27 @@ class AuthService {
 
       return result;
     } catch (e) {
+      // طباعة الخطأ الحقيقي للمطور في الـ Console
+      print('⚠️ خطأ تقني في [اسم الدالة هنا]: $e');
+
+      String userMessage = 'حدث خطأ غير متوقع، يرجى المحاولة مرة أخرى.';
+
+      // تحديد نوع الخطأ بناءً على نص الاستثناء
+      final errorString = e.toString().toLowerCase();
+
+      if (errorString.contains('socketexception') ||
+          errorString.contains('connection refused')) {
+        userMessage =
+            'لا يوجد اتصال بالإنترنت. يرجى التحقق من الشبكة والمحاولة مرة أخرى.';
+      } else if (errorString.contains('timeout')) {
+        userMessage = 'استغرق الأمر وقتًا طويلاً، يرجى المحاولة مرة أخرى.';
+      } else if (errorString.contains('failed to fetch')) {
+        userMessage = 'فشل الاتصال بالخادم، يرجى المحاولة لاحقًا.';
+      }
+
       return {
         'success': false,
-        'message': 'خطأ في تحديث الملف الشخصي: ${e.toString()}',
+        'message': userMessage, // رسالة واضحة ومناسبة للمستخدم
       };
     }
   }
@@ -585,9 +795,27 @@ class AuthService {
 
       return _handleResponse(response, 'change_password');
     } catch (e) {
+      // طباعة الخطأ الحقيقي للمطور في الـ Console
+      print('⚠️ خطأ تقني في [اسم الدالة هنا]: $e');
+
+      String userMessage = 'حدث خطأ غير متوقع، يرجى المحاولة مرة أخرى.';
+
+      // تحديد نوع الخطأ بناءً على نص الاستثناء
+      final errorString = e.toString().toLowerCase();
+
+      if (errorString.contains('socketexception') ||
+          errorString.contains('connection refused')) {
+        userMessage =
+            'لا يوجد اتصال بالإنترنت. يرجى التحقق من الشبكة والمحاولة مرة أخرى.';
+      } else if (errorString.contains('timeout')) {
+        userMessage = 'استغرق الأمر وقتًا طويلاً، يرجى المحاولة مرة أخرى.';
+      } else if (errorString.contains('failed to fetch')) {
+        userMessage = 'فشل الاتصال بالخادم، يرجى المحاولة لاحقًا.';
+      }
+
       return {
         'success': false,
-        'message': 'خطأ في تغيير كلمة المرور: ${e.toString()}',
+        'message': userMessage, // رسالة واضحة ومناسبة للمستخدم
       };
     }
   }
@@ -612,9 +840,27 @@ class AuthService {
 
       return result;
     } catch (e) {
+      // طباعة الخطأ الحقيقي للمطور في الـ Console
+      print('⚠️ خطأ تقني في [اسم الدالة هنا]: $e');
+
+      String userMessage = 'حدث خطأ غير متوقع، يرجى المحاولة مرة أخرى.';
+
+      // تحديد نوع الخطأ بناءً على نص الاستثناء
+      final errorString = e.toString().toLowerCase();
+
+      if (errorString.contains('socketexception') ||
+          errorString.contains('connection refused')) {
+        userMessage =
+            'لا يوجد اتصال بالإنترنت. يرجى التحقق من الشبكة والمحاولة مرة أخرى.';
+      } else if (errorString.contains('timeout')) {
+        userMessage = 'استغرق الأمر وقتًا طويلاً، يرجى المحاولة مرة أخرى.';
+      } else if (errorString.contains('failed to fetch')) {
+        userMessage = 'فشل الاتصال بالخادم، يرجى المحاولة لاحقًا.';
+      }
+
       return {
         'success': false,
-        'message': 'خطأ في حذف الحساب: ${e.toString()}',
+        'message': userMessage, // رسالة واضحة ومناسبة للمستخدم
       };
     }
   }
@@ -785,9 +1031,27 @@ class AuthService {
       final response = await http.Response.fromStream(streamedResponse);
       return _handleResponse(response, 'uploadVipCoverImage');
     } catch (e) {
+      // طباعة الخطأ الحقيقي للمطور في الـ Console
+      print('⚠️ خطأ تقني في [اسم الدالة هنا]: $e');
+
+      String userMessage = 'حدث خطأ غير متوقع، يرجى المحاولة مرة أخرى.';
+
+      // تحديد نوع الخطأ بناءً على نص الاستثناء
+      final errorString = e.toString().toLowerCase();
+
+      if (errorString.contains('socketexception') ||
+          errorString.contains('connection refused')) {
+        userMessage =
+            'لا يوجد اتصال بالإنترنت. يرجى التحقق من الشبكة والمحاولة مرة أخرى.';
+      } else if (errorString.contains('timeout')) {
+        userMessage = 'استغرق الأمر وقتًا طويلاً، يرجى المحاولة مرة أخرى.';
+      } else if (errorString.contains('failed to fetch')) {
+        userMessage = 'فشل الاتصال بالخادم، يرجى المحاولة لاحقًا.';
+      }
+
       return {
         'success': false,
-        'message': 'خطأ في رفع صورة الغلاف: ${e.toString()}',
+        'message': userMessage, // رسالة واضحة ومناسبة للمستخدم
       };
     }
   }
@@ -825,9 +1089,28 @@ class AuthService {
       final response = await http.Response.fromStream(streamedResponse);
       return _handleResponse(response, 'uploadVipMediaFile');
     } catch (e) {
-      String errorMessage = 'خطأ في رفع الملف';
-      if (e.toString().contains('Timeout')) errorMessage = 'انتهت مهلة الرفع';
-      return {'success': false, 'message': '$errorMessage: ${e.toString()}'};
+      // طباعة الخطأ الحقيقي للمطور في الـ Console
+      print('⚠️ خطأ تقني في [اسم الدالة هنا]: $e');
+
+      String userMessage = 'حدث خطأ غير متوقع، يرجى المحاولة مرة أخرى.';
+
+      // تحديد نوع الخطأ بناءً على نص الاستثناء
+      final errorString = e.toString().toLowerCase();
+
+      if (errorString.contains('socketexception') ||
+          errorString.contains('connection refused')) {
+        userMessage =
+            'لا يوجد اتصال بالإنترنت. يرجى التحقق من الشبكة والمحاولة مرة أخرى.';
+      } else if (errorString.contains('timeout')) {
+        userMessage = 'استغرق الأمر وقتًا طويلاً، يرجى المحاولة مرة أخرى.';
+      } else if (errorString.contains('failed to fetch')) {
+        userMessage = 'فشل الاتصال بالخادم، يرجى المحاولة لاحقًا.';
+      }
+
+      return {
+        'success': false,
+        'message': userMessage, // رسالة واضحة ومناسبة للمستخدم
+      };
     }
   }
 
@@ -873,9 +1156,27 @@ class AuthService {
 
       return _handleResponse(response, 'createEnhancedVipAd');
     } catch (e) {
+      // طباعة الخطأ الحقيقي للمطور في الـ Console
+      print('⚠️ خطأ تقني في [اسم الدالة هنا]: $e');
+
+      String userMessage = 'حدث خطأ غير متوقع، يرجى المحاولة مرة أخرى.';
+
+      // تحديد نوع الخطأ بناءً على نص الاستثناء
+      final errorString = e.toString().toLowerCase();
+
+      if (errorString.contains('socketexception') ||
+          errorString.contains('connection refused')) {
+        userMessage =
+            'لا يوجد اتصال بالإنترنت. يرجى التحقق من الشبكة والمحاولة مرة أخرى.';
+      } else if (errorString.contains('timeout')) {
+        userMessage = 'استغرق الأمر وقتًا طويلاً، يرجى المحاولة مرة أخرى.';
+      } else if (errorString.contains('failed to fetch')) {
+        userMessage = 'فشل الاتصال بالخادم، يرجى المحاولة لاحقًا.';
+      }
+
       return {
         'success': false,
-        'message': 'خطأ في إنشاء الإعلان: ${e.toString()}',
+        'message': userMessage, // رسالة واضحة ومناسبة للمستخدم
       };
     }
   }
@@ -906,11 +1207,27 @@ class AuthService {
 
       return result;
     } catch (e) {
-      print(' خطأ في جلب الإعلانات المميزة');
+      // طباعة الخطأ الحقيقي للمطور في الـ Console
+      print('⚠️ خطأ تقني في [اسم الدالة هنا]: $e');
+
+      String userMessage = 'حدث خطأ غير متوقع، يرجى المحاولة مرة أخرى.';
+
+      // تحديد نوع الخطأ بناءً على نص الاستثناء
+      final errorString = e.toString().toLowerCase();
+
+      if (errorString.contains('socketexception') ||
+          errorString.contains('connection refused')) {
+        userMessage =
+            'لا يوجد اتصال بالإنترنت. يرجى التحقق من الشبكة والمحاولة مرة أخرى.';
+      } else if (errorString.contains('timeout')) {
+        userMessage = 'استغرق الأمر وقتًا طويلاً، يرجى المحاولة مرة أخرى.';
+      } else if (errorString.contains('failed to fetch')) {
+        userMessage = 'فشل الاتصال بالخادم، يرجى المحاولة لاحقًا.';
+      }
+
       return {
         'success': false,
-        'message': 'خطأ في جلب الإعلانات المميزة: ${e.toString()}',
-        'data': [], //  إرجاع قائمة فارغة في حالة الخطأ
+        'message': userMessage, // رسالة واضحة ومناسبة للمستخدم
       };
     }
   }
@@ -928,10 +1245,27 @@ class AuthService {
 
       return _handleResponse(response, 'get_user_profile_and_posts');
     } catch (e) {
-      print(' خطأ في جلب ملف المستخدم');
+      // طباعة الخطأ الحقيقي للمطور في الـ Console
+      print('⚠️ خطأ تقني في [اسم الدالة هنا]: $e');
+
+      String userMessage = 'حدث خطأ غير متوقع، يرجى المحاولة مرة أخرى.';
+
+      // تحديد نوع الخطأ بناءً على نص الاستثناء
+      final errorString = e.toString().toLowerCase();
+
+      if (errorString.contains('socketexception') ||
+          errorString.contains('connection refused')) {
+        userMessage =
+            'لا يوجد اتصال بالإنترنت. يرجى التحقق من الشبكة والمحاولة مرة أخرى.';
+      } else if (errorString.contains('timeout')) {
+        userMessage = 'استغرق الأمر وقتًا طويلاً، يرجى المحاولة مرة أخرى.';
+      } else if (errorString.contains('failed to fetch')) {
+        userMessage = 'فشل الاتصال بالخادم، يرجى المحاولة لاحقًا.';
+      }
+
       return {
         'success': false,
-        'message': 'خطأ في جلب بيانات المستخدم: ${e.toString()}',
+        'message': userMessage, // رسالة واضحة ومناسبة للمستخدم
       };
     }
   }
@@ -955,7 +1289,28 @@ class AuthService {
 
       return _handleResponse(response, 'search');
     } catch (e) {
-      return {'success': false, 'message': 'خطأ في البحث: ${e.toString()}'};
+      // طباعة الخطأ الحقيقي للمطور في الـ Console
+      print('⚠️ خطأ تقني في [اسم الدالة هنا]: $e');
+
+      String userMessage = 'حدث خطأ غير متوقع، يرجى المحاولة مرة أخرى.';
+
+      // تحديد نوع الخطأ بناءً على نص الاستثناء
+      final errorString = e.toString().toLowerCase();
+
+      if (errorString.contains('socketexception') ||
+          errorString.contains('connection refused')) {
+        userMessage =
+            'لا يوجد اتصال بالإنترنت. يرجى التحقق من الشبكة والمحاولة مرة أخرى.';
+      } else if (errorString.contains('timeout')) {
+        userMessage = 'استغرق الأمر وقتًا طويلاً، يرجى المحاولة مرة أخرى.';
+      } else if (errorString.contains('failed to fetch')) {
+        userMessage = 'فشل الاتصال بالخادم، يرجى المحاولة لاحقًا.';
+      }
+
+      return {
+        'success': false,
+        'message': userMessage, // رسالة واضحة ومناسبة للمستخدم
+      };
     }
   }
 
@@ -974,9 +1329,27 @@ class AuthService {
 
       return _handleResponse(response, 'get_conversations');
     } catch (e) {
+      // طباعة الخطأ الحقيقي للمطور في الـ Console
+      print('⚠️ خطأ تقني في [اسم الدالة هنا]: $e');
+
+      String userMessage = 'حدث خطأ غير متوقع، يرجى المحاولة مرة أخرى.';
+
+      // تحديد نوع الخطأ بناءً على نص الاستثناء
+      final errorString = e.toString().toLowerCase();
+
+      if (errorString.contains('socketexception') ||
+          errorString.contains('connection refused')) {
+        userMessage =
+            'لا يوجد اتصال بالإنترنت. يرجى التحقق من الشبكة والمحاولة مرة أخرى.';
+      } else if (errorString.contains('timeout')) {
+        userMessage = 'استغرق الأمر وقتًا طويلاً، يرجى المحاولة مرة أخرى.';
+      } else if (errorString.contains('failed to fetch')) {
+        userMessage = 'فشل الاتصال بالخادم، يرجى المحاولة لاحقًا.';
+      }
+
       return {
         'success': false,
-        'message': 'خطأ في جلب المحادثات: ${e.toString()}',
+        'message': userMessage, // رسالة واضحة ومناسبة للمستخدم
       };
     }
   }
@@ -999,9 +1372,27 @@ class AuthService {
 
       return _handleResponse(response, 'get_messages');
     } catch (e) {
+      // طباعة الخطأ الحقيقي للمطور في الـ Console
+      print('⚠️ خطأ تقني في [اسم الدالة هنا]: $e');
+
+      String userMessage = 'حدث خطأ غير متوقع، يرجى المحاولة مرة أخرى.';
+
+      // تحديد نوع الخطأ بناءً على نص الاستثناء
+      final errorString = e.toString().toLowerCase();
+
+      if (errorString.contains('socketexception') ||
+          errorString.contains('connection refused')) {
+        userMessage =
+            'لا يوجد اتصال بالإنترنت. يرجى التحقق من الشبكة والمحاولة مرة أخرى.';
+      } else if (errorString.contains('timeout')) {
+        userMessage = 'استغرق الأمر وقتًا طويلاً، يرجى المحاولة مرة أخرى.';
+      } else if (errorString.contains('failed to fetch')) {
+        userMessage = 'فشل الاتصال بالخادم، يرجى المحاولة لاحقًا.';
+      }
+
       return {
         'success': false,
-        'message': 'خطأ في جلب الرسائل: ${e.toString()}',
+        'message': userMessage, // رسالة واضحة ومناسبة للمستخدم
       };
     }
   }
@@ -1021,9 +1412,27 @@ class AuthService {
 
       return _handleResponse(response, 'send_message');
     } catch (e) {
+      // طباعة الخطأ الحقيقي للمطور في الـ Console
+      print('⚠️ خطأ تقني في [اسم الدالة هنا]: $e');
+
+      String userMessage = 'حدث خطأ غير متوقع، يرجى المحاولة مرة أخرى.';
+
+      // تحديد نوع الخطأ بناءً على نص الاستثناء
+      final errorString = e.toString().toLowerCase();
+
+      if (errorString.contains('socketexception') ||
+          errorString.contains('connection refused')) {
+        userMessage =
+            'لا يوجد اتصال بالإنترنت. يرجى التحقق من الشبكة والمحاولة مرة أخرى.';
+      } else if (errorString.contains('timeout')) {
+        userMessage = 'استغرق الأمر وقتًا طويلاً، يرجى المحاولة مرة أخرى.';
+      } else if (errorString.contains('failed to fetch')) {
+        userMessage = 'فشل الاتصال بالخادم، يرجى المحاولة لاحقًا.';
+      }
+
       return {
         'success': false,
-        'message': 'خطأ في إرسال الرسالة: ${e.toString()}',
+        'message': userMessage, // رسالة واضحة ومناسبة للمستخدم
       };
     }
   }
@@ -1067,24 +1476,27 @@ class AuthService {
 
       return result;
     } catch (e) {
-      // في حالة عدم توفر endpoint الإشعارات، أرجع بيانات فارغة
-      if (e.toString().contains('404') || e.toString().contains('Not Found')) {
-        return {
-          'success': true,
-          'data': {
-            'notifications': [],
-            'unread_count': 0,
-            'total': 0,
-            'current_page': page,
-          },
-          'message': 'نظام الإشعارات غير مفعل حالياً',
-        };
+      // طباعة الخطأ الحقيقي للمطور في الـ Console
+      print('⚠️ خطأ تقني في [اسم الدالة هنا]: $e');
+
+      String userMessage = 'حدث خطأ غير متوقع، يرجى المحاولة مرة أخرى.';
+
+      // تحديد نوع الخطأ بناءً على نص الاستثناء
+      final errorString = e.toString().toLowerCase();
+
+      if (errorString.contains('socketexception') ||
+          errorString.contains('connection refused')) {
+        userMessage =
+            'لا يوجد اتصال بالإنترنت. يرجى التحقق من الشبكة والمحاولة مرة أخرى.';
+      } else if (errorString.contains('timeout')) {
+        userMessage = 'استغرق الأمر وقتًا طويلاً، يرجى المحاولة مرة أخرى.';
+      } else if (errorString.contains('failed to fetch')) {
+        userMessage = 'فشل الاتصال بالخادم، يرجى المحاولة لاحقًا.';
       }
 
       return {
         'success': false,
-        'message': 'خطأ في جلب الإشعارات: ${e.toString()}',
-        'status_code': 500,
+        'message': userMessage, // رسالة واضحة ومناسبة للمستخدم
       };
     }
   }
@@ -1115,9 +1527,27 @@ class AuthService {
 
       return _handleResponse(response, 'markNotificationsAsRead');
     } catch (e) {
+      // طباعة الخطأ الحقيقي للمطور في الـ Console
+      print('⚠️ خطأ تقني في [اسم الدالة هنا]: $e');
+
+      String userMessage = 'حدث خطأ غير متوقع، يرجى المحاولة مرة أخرى.';
+
+      // تحديد نوع الخطأ بناءً على نص الاستثناء
+      final errorString = e.toString().toLowerCase();
+
+      if (errorString.contains('socketexception') ||
+          errorString.contains('connection refused')) {
+        userMessage =
+            'لا يوجد اتصال بالإنترنت. يرجى التحقق من الشبكة والمحاولة مرة أخرى.';
+      } else if (errorString.contains('timeout')) {
+        userMessage = 'استغرق الأمر وقتًا طويلاً، يرجى المحاولة مرة أخرى.';
+      } else if (errorString.contains('failed to fetch')) {
+        userMessage = 'فشل الاتصال بالخادم، يرجى المحاولة لاحقًا.';
+      }
+
       return {
         'success': false,
-        'message': 'خطأ في تحديث الإشعارات: ${e.toString()}',
+        'message': userMessage, // رسالة واضحة ومناسبة للمستخدم
       };
     }
   }
@@ -1151,9 +1581,27 @@ class AuthService {
 
       return _handleResponse(response, 'reportPost');
     } catch (e) {
+      // طباعة الخطأ الحقيقي للمطور في الـ Console
+      print('⚠️ خطأ تقني في [اسم الدالة هنا]: $e');
+
+      String userMessage = 'حدث خطأ غير متوقع، يرجى المحاولة مرة أخرى.';
+
+      // تحديد نوع الخطأ بناءً على نص الاستثناء
+      final errorString = e.toString().toLowerCase();
+
+      if (errorString.contains('socketexception') ||
+          errorString.contains('connection refused')) {
+        userMessage =
+            'لا يوجد اتصال بالإنترنت. يرجى التحقق من الشبكة والمحاولة مرة أخرى.';
+      } else if (errorString.contains('timeout')) {
+        userMessage = 'استغرق الأمر وقتًا طويلاً، يرجى المحاولة مرة أخرى.';
+      } else if (errorString.contains('failed to fetch')) {
+        userMessage = 'فشل الاتصال بالخادم، يرجى المحاولة لاحقًا.';
+      }
+
       return {
         'success': false,
-        'message': 'خطأ في إرسال الإبلاغ: ${e.toString()}',
+        'message': userMessage, // رسالة واضحة ومناسبة للمستخدم
       };
     }
   }
@@ -1174,9 +1622,27 @@ class AuthService {
 
       return _handleResponse(response, 'getPostReports');
     } catch (e) {
+      // طباعة الخطأ الحقيقي للمطور في الـ Console
+      print('⚠️ خطأ تقني في [اسم الدالة هنا]: $e');
+
+      String userMessage = 'حدث خطأ غير متوقع، يرجى المحاولة مرة أخرى.';
+
+      // تحديد نوع الخطأ بناءً على نص الاستثناء
+      final errorString = e.toString().toLowerCase();
+
+      if (errorString.contains('socketexception') ||
+          errorString.contains('connection refused')) {
+        userMessage =
+            'لا يوجد اتصال بالإنترنت. يرجى التحقق من الشبكة والمحاولة مرة أخرى.';
+      } else if (errorString.contains('timeout')) {
+        userMessage = 'استغرق الأمر وقتًا طويلاً، يرجى المحاولة مرة أخرى.';
+      } else if (errorString.contains('failed to fetch')) {
+        userMessage = 'فشل الاتصال بالخادم، يرجى المحاولة لاحقًا.';
+      }
+
       return {
         'success': false,
-        'message': 'خطأ في جلب التقارير: ${e.toString()}',
+        'message': userMessage, // رسالة واضحة ومناسبة للمستخدم
       };
     }
   }
@@ -1208,9 +1674,27 @@ class AuthService {
 
       return _handleResponse(response, 'updateReportStatus');
     } catch (e) {
+      // طباعة الخطأ الحقيقي للمطور في الـ Console
+      print('⚠️ خطأ تقني في [اسم الدالة هنا]: $e');
+
+      String userMessage = 'حدث خطأ غير متوقع، يرجى المحاولة مرة أخرى.';
+
+      // تحديد نوع الخطأ بناءً على نص الاستثناء
+      final errorString = e.toString().toLowerCase();
+
+      if (errorString.contains('socketexception') ||
+          errorString.contains('connection refused')) {
+        userMessage =
+            'لا يوجد اتصال بالإنترنت. يرجى التحقق من الشبكة والمحاولة مرة أخرى.';
+      } else if (errorString.contains('timeout')) {
+        userMessage = 'استغرق الأمر وقتًا طويلاً، يرجى المحاولة مرة أخرى.';
+      } else if (errorString.contains('failed to fetch')) {
+        userMessage = 'فشل الاتصال بالخادم، يرجى المحاولة لاحقًا.';
+      }
+
       return {
         'success': false,
-        'message': 'خطأ في تحديث التقرير: ${e.toString()}',
+        'message': userMessage, // رسالة واضحة ومناسبة للمستخدم
       };
     }
   }
@@ -1243,9 +1727,27 @@ class AuthService {
 
       return _handleResponse(response, 'reportComment');
     } catch (e) {
+      // طباعة الخطأ الحقيقي للمطور في الـ Console
+      print('⚠️ خطأ تقني في [اسم الدالة هنا]: $e');
+
+      String userMessage = 'حدث خطأ غير متوقع، يرجى المحاولة مرة أخرى.';
+
+      // تحديد نوع الخطأ بناءً على نص الاستثناء
+      final errorString = e.toString().toLowerCase();
+
+      if (errorString.contains('socketexception') ||
+          errorString.contains('connection refused')) {
+        userMessage =
+            'لا يوجد اتصال بالإنترنت. يرجى التحقق من الشبكة والمحاولة مرة أخرى.';
+      } else if (errorString.contains('timeout')) {
+        userMessage = 'استغرق الأمر وقتًا طويلاً، يرجى المحاولة مرة أخرى.';
+      } else if (errorString.contains('failed to fetch')) {
+        userMessage = 'فشل الاتصال بالخادم، يرجى المحاولة لاحقًا.';
+      }
+
       return {
         'success': false,
-        'message': 'خطأ في إرسال الإبلاغ: ${e.toString()}',
+        'message': userMessage, // رسالة واضحة ومناسبة للمستخدم
       };
     }
   }
@@ -1275,7 +1777,28 @@ class AuthService {
       final response = await http.get(uri, headers: getHeaders(token));
       return _handleResponse(response, 'get_posts_by_category');
     } catch (e) {
-      return {'success': false, 'message': 'خطأ في جلب المنشورات'};
+      // طباعة الخطأ الحقيقي للمطور في الـ Console
+      print('⚠️ خطأ تقني في [اسم الدالة هنا]: $e');
+
+      String userMessage = 'حدث خطأ غير متوقع، يرجى المحاولة مرة أخرى.';
+
+      // تحديد نوع الخطأ بناءً على نص الاستثناء
+      final errorString = e.toString().toLowerCase();
+
+      if (errorString.contains('socketexception') ||
+          errorString.contains('connection refused')) {
+        userMessage =
+            'لا يوجد اتصال بالإنترنت. يرجى التحقق من الشبكة والمحاولة مرة أخرى.';
+      } else if (errorString.contains('timeout')) {
+        userMessage = 'استغرق الأمر وقتًا طويلاً، يرجى المحاولة مرة أخرى.';
+      } else if (errorString.contains('failed to fetch')) {
+        userMessage = 'فشل الاتصال بالخادم، يرجى المحاولة لاحقًا.';
+      }
+
+      return {
+        'success': false,
+        'message': userMessage, // رسالة واضحة ومناسبة للمستخدم
+      };
     }
   }
 
@@ -1345,10 +1868,27 @@ class AuthService {
 
       return result;
     } catch (e) {
-      print(' خطأ في تحديث الإعجاب');
+      // طباعة الخطأ الحقيقي للمطور في الـ Console
+      print('⚠️ خطأ تقني في [اسم الدالة هنا]: $e');
+
+      String userMessage = 'حدث خطأ غير متوقع، يرجى المحاولة مرة أخرى.';
+
+      // تحديد نوع الخطأ بناءً على نص الاستثناء
+      final errorString = e.toString().toLowerCase();
+
+      if (errorString.contains('socketexception') ||
+          errorString.contains('connection refused')) {
+        userMessage =
+            'لا يوجد اتصال بالإنترنت. يرجى التحقق من الشبكة والمحاولة مرة أخرى.';
+      } else if (errorString.contains('timeout')) {
+        userMessage = 'استغرق الأمر وقتًا طويلاً، يرجى المحاولة مرة أخرى.';
+      } else if (errorString.contains('failed to fetch')) {
+        userMessage = 'فشل الاتصال بالخادم، يرجى المحاولة لاحقًا.';
+      }
+
       return {
         'success': false,
-        'message': 'خطأ في تحديث الإعجاب: ${e.toString()}',
+        'message': userMessage, // رسالة واضحة ومناسبة للمستخدم
       };
     }
   }
@@ -1385,10 +1925,27 @@ class AuthService {
 
       return result;
     } catch (e) {
-      print(' خطأ في جلب إحصائيات المنشور');
+      // طباعة الخطأ الحقيقي للمطور في الـ Console
+      print('⚠️ خطأ تقني في [اسم الدالة هنا]: $e');
+
+      String userMessage = 'حدث خطأ غير متوقع، يرجى المحاولة مرة أخرى.';
+
+      // تحديد نوع الخطأ بناءً على نص الاستثناء
+      final errorString = e.toString().toLowerCase();
+
+      if (errorString.contains('socketexception') ||
+          errorString.contains('connection refused')) {
+        userMessage =
+            'لا يوجد اتصال بالإنترنت. يرجى التحقق من الشبكة والمحاولة مرة أخرى.';
+      } else if (errorString.contains('timeout')) {
+        userMessage = 'استغرق الأمر وقتًا طويلاً، يرجى المحاولة مرة أخرى.';
+      } else if (errorString.contains('failed to fetch')) {
+        userMessage = 'فشل الاتصال بالخادم، يرجى المحاولة لاحقًا.';
+      }
+
       return {
         'success': false,
-        'message': 'خطأ في جلب الإحصائيات: ${e.toString()}',
+        'message': userMessage, // رسالة واضحة ومناسبة للمستخدم
       };
     }
   }
@@ -1441,10 +1998,27 @@ class AuthService {
 
       return result;
     } catch (e) {
-      print(' خطأ في إضافة التعليق');
+      // طباعة الخطأ الحقيقي للمطور في الـ Console
+      print('⚠️ خطأ تقني في [اسم الدالة هنا]: $e');
+
+      String userMessage = 'حدث خطأ غير متوقع، يرجى المحاولة مرة أخرى.';
+
+      // تحديد نوع الخطأ بناءً على نص الاستثناء
+      final errorString = e.toString().toLowerCase();
+
+      if (errorString.contains('socketexception') ||
+          errorString.contains('connection refused')) {
+        userMessage =
+            'لا يوجد اتصال بالإنترنت. يرجى التحقق من الشبكة والمحاولة مرة أخرى.';
+      } else if (errorString.contains('timeout')) {
+        userMessage = 'استغرق الأمر وقتًا طويلاً، يرجى المحاولة مرة أخرى.';
+      } else if (errorString.contains('failed to fetch')) {
+        userMessage = 'فشل الاتصال بالخادم، يرجى المحاولة لاحقًا.';
+      }
+
       return {
         'success': false,
-        'message': 'خطأ في إضافة التعليق: ${e.toString()}',
+        'message': userMessage, // رسالة واضحة ومناسبة للمستخدم
       };
     }
   }
@@ -1486,10 +2060,27 @@ class AuthService {
 
       return result;
     } catch (e) {
-      print(' خطأ في جلب التعليقات');
+      // طباعة الخطأ الحقيقي للمطور في الـ Console
+      print('⚠️ خطأ تقني في [اسم الدالة هنا]: $e');
+
+      String userMessage = 'حدث خطأ غير متوقع، يرجى المحاولة مرة أخرى.';
+
+      // تحديد نوع الخطأ بناءً على نص الاستثناء
+      final errorString = e.toString().toLowerCase();
+
+      if (errorString.contains('socketexception') ||
+          errorString.contains('connection refused')) {
+        userMessage =
+            'لا يوجد اتصال بالإنترنت. يرجى التحقق من الشبكة والمحاولة مرة أخرى.';
+      } else if (errorString.contains('timeout')) {
+        userMessage = 'استغرق الأمر وقتًا طويلاً، يرجى المحاولة مرة أخرى.';
+      } else if (errorString.contains('failed to fetch')) {
+        userMessage = 'فشل الاتصال بالخادم، يرجى المحاولة لاحقًا.';
+      }
+
       return {
         'success': false,
-        'message': 'خطأ في جلب التعليقات: ${e.toString()}',
+        'message': userMessage, // رسالة واضحة ومناسبة للمستخدم
       };
     }
   }
@@ -1511,9 +2102,27 @@ class AuthService {
 
       return _handleResponse(response, 'toggle_comment_like');
     } catch (e) {
+      // طباعة الخطأ الحقيقي للمطور في الـ Console
+      print('⚠️ خطأ تقني في [اسم الدالة هنا]: $e');
+
+      String userMessage = 'حدث خطأ غير متوقع، يرجى المحاولة مرة أخرى.';
+
+      // تحديد نوع الخطأ بناءً على نص الاستثناء
+      final errorString = e.toString().toLowerCase();
+
+      if (errorString.contains('socketexception') ||
+          errorString.contains('connection refused')) {
+        userMessage =
+            'لا يوجد اتصال بالإنترنت. يرجى التحقق من الشبكة والمحاولة مرة أخرى.';
+      } else if (errorString.contains('timeout')) {
+        userMessage = 'استغرق الأمر وقتًا طويلاً، يرجى المحاولة مرة أخرى.';
+      } else if (errorString.contains('failed to fetch')) {
+        userMessage = 'فشل الاتصال بالخادم، يرجى المحاولة لاحقًا.';
+      }
+
       return {
         'success': false,
-        'message': 'خطأ في تحديث إعجاب التعليق: ${e.toString()}',
+        'message': userMessage, // رسالة واضحة ومناسبة للمستخدم
       };
     }
   }
@@ -1552,10 +2161,27 @@ class AuthService {
 
       return _handleResponse(response, 'get_posts_by_category_id');
     } catch (e) {
-      print(' خطأ في جلب المنشورات حسب الـ ID');
+      // طباعة الخطأ الحقيقي للمطور في الـ Console
+      print('⚠️ خطأ تقني في [اسم الدالة هنا]: $e');
+
+      String userMessage = 'حدث خطأ غير متوقع، يرجى المحاولة مرة أخرى.';
+
+      // تحديد نوع الخطأ بناءً على نص الاستثناء
+      final errorString = e.toString().toLowerCase();
+
+      if (errorString.contains('socketexception') ||
+          errorString.contains('connection refused')) {
+        userMessage =
+            'لا يوجد اتصال بالإنترنت. يرجى التحقق من الشبكة والمحاولة مرة أخرى.';
+      } else if (errorString.contains('timeout')) {
+        userMessage = 'استغرق الأمر وقتًا طويلاً، يرجى المحاولة مرة أخرى.';
+      } else if (errorString.contains('failed to fetch')) {
+        userMessage = 'فشل الاتصال بالخادم، يرجى المحاولة لاحقًا.';
+      }
+
       return {
         'success': false,
-        'message': 'خطأ في جلب المنشورات: ${e.toString()}',
+        'message': userMessage, // رسالة واضحة ومناسبة للمستخدم
       };
     }
   }
@@ -1585,9 +2211,27 @@ class AuthService {
 
       return _handleResponse(response, 'sendNotificationToAll');
     } catch (e) {
+      // طباعة الخطأ الحقيقي للمطور في الـ Console
+      print('⚠️ خطأ تقني في [اسم الدالة هنا]: $e');
+
+      String userMessage = 'حدث خطأ غير متوقع، يرجى المحاولة مرة أخرى.';
+
+      // تحديد نوع الخطأ بناءً على نص الاستثناء
+      final errorString = e.toString().toLowerCase();
+
+      if (errorString.contains('socketexception') ||
+          errorString.contains('connection refused')) {
+        userMessage =
+            'لا يوجد اتصال بالإنترنت. يرجى التحقق من الشبكة والمحاولة مرة أخرى.';
+      } else if (errorString.contains('timeout')) {
+        userMessage = 'استغرق الأمر وقتًا طويلاً، يرجى المحاولة مرة أخرى.';
+      } else if (errorString.contains('failed to fetch')) {
+        userMessage = 'فشل الاتصال بالخادم، يرجى المحاولة لاحقًا.';
+      }
+
       return {
         'success': false,
-        'message': 'خطأ في إرسال الإشعار: ${e.toString()}',
+        'message': userMessage, // رسالة واضحة ومناسبة للمستخدم
       };
     }
   }
@@ -1628,10 +2272,27 @@ class AuthService {
 
       return result;
     } catch (e) {
-      print(' خطأ في جلب المنشور: $e');
+      // طباعة الخطأ الحقيقي للمطور في الـ Console
+      print('⚠️ خطأ تقني في [اسم الدالة هنا]: $e');
+
+      String userMessage = 'حدث خطأ غير متوقع، يرجى المحاولة مرة أخرى.';
+
+      // تحديد نوع الخطأ بناءً على نص الاستثناء
+      final errorString = e.toString().toLowerCase();
+
+      if (errorString.contains('socketexception') ||
+          errorString.contains('connection refused')) {
+        userMessage =
+            'لا يوجد اتصال بالإنترنت. يرجى التحقق من الشبكة والمحاولة مرة أخرى.';
+      } else if (errorString.contains('timeout')) {
+        userMessage = 'استغرق الأمر وقتًا طويلاً، يرجى المحاولة مرة أخرى.';
+      } else if (errorString.contains('failed to fetch')) {
+        userMessage = 'فشل الاتصال بالخادم، يرجى المحاولة لاحقًا.';
+      }
+
       return {
         'success': false,
-        'message': 'خطأ في جلب المنشور: ${e.toString()}',
+        'message': userMessage, // رسالة واضحة ومناسبة للمستخدم
       };
     }
   }
