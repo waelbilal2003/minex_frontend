@@ -34,8 +34,33 @@ class _PostDetailsPageState extends State<PostDetailsPage> {
       final result = await AuthService.getPostById(widget.postId);
 
       if (result['success'] == true) {
+        // --- بداية تحويل البيانات ---
+        // الـ API يُرجع بيانات المستخدم داخل كائن 'user'، ولكن PostCardWidget يتوقعها في المستوى الأعلى.
+        // سنقوم بتحويل البيانات لتطابق الهيكل الموجود في home_page.
+        final postData = Map<String, dynamic>.from(result['post']);
+        final userData = postData['user'] as Map<String, dynamic>?;
+
+        if (userData != null) {
+          postData['user_id'] = userData['id'];
+          postData['user_name'] = userData['full_name'];
+          postData['gender'] = userData['gender'];
+          postData['user_type'] = userData['user_type'];
+        }
+
+        // أيضاً، نحول هيكل الفيديو ليتناسب
+        if (postData['video'] != null &&
+            postData['video']['video_path'] != null) {
+          postData['video_url'] = postData['video']['video_path'];
+        }
+
+        // نحول أيضاً مفتاح حالة الإعجاب
+        if (postData.containsKey('is_liked_by_user')) {
+          postData['isLiked'] = postData['is_liked_by_user'];
+        }
+        // --- نهاية تحويل البيانات ---
+
         setState(() {
-          _post = result['post'];
+          _post = postData; // نستخدم البيانات المحوّلة
           _isLoading = false;
         });
       } else {

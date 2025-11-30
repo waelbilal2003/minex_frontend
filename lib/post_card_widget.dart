@@ -256,26 +256,23 @@ class _PostCardWidgetState extends State<PostCardWidget> {
 
   @override
   Widget build(BuildContext context) {
-    final bool isLiked = widget.post['is_liked_by_user'] ??
-        false; // تم التصحيح: is_liked_by_user
+    final bool isLiked = widget.post['isLiked'] ?? false;
     final isDarkMode = Theme.of(context).brightness == Brightness.dark;
     final primaryColor = (AuthService.currentUser?['gender'] ?? 'ذكر') == 'ذكر'
         ? Colors.blue
         : Colors.pink;
 
-    // --- تعديلات الوصول إلى بيانات المستخدم ---
-    final userData = widget.post['user'] as Map<String, dynamic>?;
     final currentUserId = AuthService.currentUser?['user_id'];
-    final postUserId = userData?['id'] is int
-        ? userData!['id']
-        : int.tryParse(userData?['id'].toString() ?? '') ?? -1;
+    final postUserId = widget.post['user_id'] is int
+        ? widget.post['user_id']
+        : int.tryParse(widget.post['user_id'].toString()) ?? -1;
     final canDelete = AuthService.isAdmin || currentUserId == postUserId;
 
     final createdAt = DateTime.parse(widget.post['created_at']);
     final timeAgo = DateFormat('yyyy-MM-dd – kk:mm').format(createdAt);
 
-    final userType = userData?['user_type'] ?? 'person';
-    final gender = (userData?['gender'] ?? '').toString().toLowerCase();
+    final userType = widget.post['user_type'] ?? 'person';
+    final gender = (widget.post['gender'] ?? '').toString().toLowerCase();
 
     final Color avatarColor;
     final IconData avatarIcon;
@@ -305,7 +302,7 @@ class _PostCardWidgetState extends State<PostCardWidget> {
         MaterialPageRoute(
           builder: (context) => UserProfilePage(
             userId: postUserId,
-            userName: userData?['full_name'], // تم التصحيح
+            userName: widget.post['user_name'],
           ),
         ),
       );
@@ -347,7 +344,7 @@ class _PostCardWidgetState extends State<PostCardWidget> {
                       GestureDetector(
                         onTap: navigateToUserProfile,
                         child: Text(
-                          userData?['full_name'] ?? 'مستخدم', // تم التصحيح
+                          widget.post['user_name'] ?? 'مستخدم',
                           style: TextStyle(
                             fontWeight: FontWeight.bold,
                             fontSize: 14,
@@ -506,12 +503,11 @@ class _PostCardWidgetState extends State<PostCardWidget> {
               padding: EdgeInsets.fromLTRB(12, 8, 12, 8),
               child: _buildImagesWidget(widget.post['images']),
             ),
-          if (widget.post['video'] != null &&
-              widget.post['video']['video_path'] != null) // تم التصحيح
+          if (widget.post['video_url'] != null &&
+              widget.post['video_url'].isNotEmpty)
             Padding(
               padding: EdgeInsets.fromLTRB(12, 8, 12, 8),
-              child: _buildVideoPlayer(
-                  widget.post['video']['video_path']), // تم التصحيح
+              child: _buildVideoPlayer(_getImageUrl(widget.post['video_url'])),
             ),
           Container(
             margin: EdgeInsets.only(top: 4),
@@ -527,6 +523,7 @@ class _PostCardWidgetState extends State<PostCardWidget> {
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
                 _buildInteractionButton(
+                  // ✨ تم تمرير العدد بشكل مباشر
                   text: '${widget.post['likes_count'] ?? 0} إعجاب',
                   icon: isLiked ? Icons.thumb_up : Icons.thumb_up_outlined,
                   color: isLiked
@@ -538,14 +535,16 @@ class _PostCardWidgetState extends State<PostCardWidget> {
                       return;
                     }
 
-                    bool currentIsLiked =
-                        widget.post['is_liked_by_user'] ?? false;
+                    // قراءة القيم الحالية من widget.post
+                    bool currentIsLiked = widget.post['isLiked'] ?? false;
                     int currentLikesCount = widget.post['likes_count'] ?? 0;
 
-                    widget.post['is_liked_by_user'] = !currentIsLiked;
-                    widget.post['likes_count'] = currentLikesCount +
-                        (widget.post['is_liked_by_user'] ? 1 : -1);
+                    // تحديث فوري للمستخدم
+                    widget.post['isLiked'] = !currentIsLiked;
+                    widget.post['likes_count'] =
+                        currentLikesCount + (widget.post['isLiked'] ? 1 : -1);
 
+                    // إعادة بناء الويجت لعرض التحديث الفوري
                     if (mounted) setState(() {});
 
                     try {
@@ -553,14 +552,16 @@ class _PostCardWidgetState extends State<PostCardWidget> {
                         widget.post['id'],
                       );
                       if (result['success'] == true && mounted) {
-                        widget.post['is_liked_by_user'] = result['isLiked'] ??
-                            widget.post['is_liked_by_user'];
+                        // تحديث القيم من الخادم
+                        widget.post['isLiked'] =
+                            result['isLiked'] ?? widget.post['isLiked'];
                         widget.post['likes_count'] = result['likesCount'] ??
                             result['likes_count'] ??
                             widget.post['likes_count'];
                         setState(() {});
                       } else {
-                        widget.post['is_liked_by_user'] = currentIsLiked;
+                        // إعادة القيم الأصلية في حال الفشل
+                        widget.post['isLiked'] = currentIsLiked;
                         widget.post['likes_count'] = currentLikesCount;
                         if (mounted) setState(() {});
                         ScaffoldMessenger.of(context).showSnackBar(
@@ -573,7 +574,8 @@ class _PostCardWidgetState extends State<PostCardWidget> {
                         );
                       }
                     } catch (e) {
-                      widget.post['is_liked_by_user'] = currentIsLiked;
+                      // إعادة القيم الأصلية في حال الخطأ
+                      widget.post['isLiked'] = currentIsLiked;
                       widget.post['likes_count'] = currentLikesCount;
                       if (mounted) setState(() {});
                       ScaffoldMessenger.of(context).showSnackBar(
@@ -586,11 +588,13 @@ class _PostCardWidgetState extends State<PostCardWidget> {
                   },
                 ),
                 _buildInteractionButton(
+                  // ✨ تم تمرير العدد بشكل مباشر
                   text: '${widget.post['comments_count'] ?? 0} تعليق',
                   icon: Icons.comment_outlined,
                   color: isDarkMode ? Colors.white : Colors.grey[800]!,
                   onTap: _navigateToComments,
                 ),
+                // --- ⬇️ بداية الجزء المعدل ⬇️ ---
                 _buildInteractionButton(
                   text: 'مراسلة',
                   icon: Icons.message_outlined,
@@ -613,8 +617,8 @@ class _PostCardWidgetState extends State<PostCardWidget> {
                         builder: (context) => ChatPage(
                           conversationId: -1,
                           otherUserId: postUserId,
-                          otherUserName: userData?['full_name'], // تم التصحيح
-                          otherUserGender: userData?['gender'], // تم التصحيح
+                          otherUserName: widget.post['user_name'],
+                          otherUserGender: widget.post['gender'],
                         ),
                       ),
                     );
@@ -625,16 +629,20 @@ class _PostCardWidgetState extends State<PostCardWidget> {
                   icon: Icons.share_outlined,
                   color: isDarkMode ? Colors.white : Colors.grey[800]!,
                   onTap: () async {
+                    // التحقق من الاتصال بالإنترنت
                     try {
+                      // إنشاء رابط فريد للمنشور
                       final postId = widget.post['id'];
                       final postTitle = widget.post['title'] ??
                           widget.post['content']?.substring(0, 30) ??
                           'منشور';
                       final url = 'https://minexsy.site/api/posts/$postId';
 
+                      // نص المشاركة الجذاب
                       final shareText =
                           'شاهد هذا المنشور: "$postTitle" على تطبيق minex\n$url';
 
+                      // عرض خيارات المشاركة
                       await Share.share(shareText, subject: 'مشاركة منشور');
                     } catch (e) {
                       ScaffoldMessenger.of(context).showSnackBar(
