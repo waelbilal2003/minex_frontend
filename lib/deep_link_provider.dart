@@ -31,9 +31,10 @@ class DeepLinkProvider with ChangeNotifier {
   // دالة جديدة للتعامل مع الروابط الخارجية
   static void handleDeepLink(BuildContext context, String link) {
     // التحقق من أن الرابط يبدأ بـ https://minexsy.site/posts/
-    if (link.startsWith('https://minexsy.site/posts/')) {
+    if (link.startsWith('https://minexsy.site/api/posts/')) {
       // استخراج الـ ID من الرابط
-      final postIdString = link.substring('https://minexsy.site/posts/'.length);
+      final postIdString =
+          link.substring('https://minexsy.site/api/posts/'.length);
       final postId = int.tryParse(postIdString);
 
       // إذا كان الـ ID صحيحاً، انتقل إلى صفحة التفاصيل
