@@ -177,7 +177,8 @@ class AuthService {
       // طباعة الخطأ الحقيقي للمطور في الـ Console
       print('⚠️ خطأ تقني في [اسم الدالة هنا]: $e');
 
-      String userMessage = 'حدث خطأ غير متوقع، يرجى المحاولة مرة أخرى.';
+      String userMessage =
+          'حدث خطأ في الاتصال بالانترنت، يرجى المحاولة مرة أخرى.';
 
       // تحديد نوع الخطأ بناءً على نص الاستثناء
       final errorString = e.toString().toLowerCase();
@@ -212,7 +213,8 @@ class AuthService {
       // طباعة الخطأ الحقيقي للمطور في الـ Console
       print('⚠️ خطأ تقني في [اسم الدالة هنا]: $e');
 
-      String userMessage = 'حدث خطأ غير متوقع، يرجى المحاولة مرة أخرى.';
+      String userMessage =
+          'حدث خطأ في الاتصال بالانترنت، يرجى المحاولة مرة أخرى.';
 
       // تحديد نوع الخطأ بناءً على نص الاستثناء
       final errorString = e.toString().toLowerCase();
@@ -253,7 +255,8 @@ class AuthService {
       // طباعة الخطأ الحقيقي للمطور في الـ Console
       print('⚠️ خطأ تقني في [اسم الدالة هنا]: $e');
 
-      String userMessage = 'حدث خطأ غير متوقع، يرجى المحاولة مرة أخرى.';
+      String userMessage =
+          'حدث خطأ في الاتصال بالانترنت، يرجى المحاولة مرة أخرى.';
 
       // تحديد نوع الخطأ بناءً على نص الاستثناء
       final errorString = e.toString().toLowerCase();
@@ -288,7 +291,8 @@ class AuthService {
       // طباعة الخطأ الحقيقي للمطور في الـ Console
       print('⚠️ خطأ تقني في [اسم الدالة هنا]: $e');
 
-      String userMessage = 'حدث خطأ غير متوقع، يرجى المحاولة مرة أخرى.';
+      String userMessage =
+          'حدث خطأ في الاتصال بالانترنت، يرجى المحاولة مرة أخرى.';
 
       // تحديد نوع الخطأ بناءً على نص الاستثناء
       final errorString = e.toString().toLowerCase();
@@ -326,7 +330,8 @@ class AuthService {
       // طباعة الخطأ الحقيقي للمطور في الـ Console
       print('⚠️ خطأ تقني في [اسم الدالة هنا]: $e');
 
-      String userMessage = 'حدث خطأ غير متوقع، يرجى المحاولة مرة أخرى.';
+      String userMessage =
+          'حدث خطأ في الاتصال بالانترنت، يرجى المحاولة مرة أخرى.';
 
       // تحديد نوع الخطأ بناءً على نص الاستثناء
       final errorString = e.toString().toLowerCase();
@@ -375,7 +380,8 @@ class AuthService {
         // طباعة الخطأ الحقيقي للمطور في الـ Console
         print('⚠️ خطأ تقني في [اسم الدالة هنا]: $e');
 
-        String userMessage = 'حدث خطأ غير متوقع، يرجى المحاولة مرة أخرى.';
+        String userMessage =
+            'حدث خطأ في الاتصال بالانترنت، يرجى المحاولة مرة أخرى.';
 
         // تحديد نوع الخطأ بناءً على نص الاستثناء
         final errorString = e.toString().toLowerCase();
@@ -464,7 +470,8 @@ class AuthService {
       // طباعة الخطأ الحقيقي للمطور في الـ Console
       print('⚠️ خطأ تقني في [اسم الدالة هنا]: $e');
 
-      String userMessage = 'حدث خطأ غير متوقع، يرجى المحاولة مرة أخرى.';
+      String userMessage =
+          'حدث خطأ في الاتصال بالانترنت، يرجى المحاولة مرة أخرى.';
 
       // تحديد نوع الخطأ بناءً على نص الاستثناء
       final errorString = e.toString().toLowerCase();
@@ -575,7 +582,8 @@ class AuthService {
       // طباعة الخطأ الحقيقي للمطور في الـ Console
       print('⚠️ خطأ تقني في [اسم الدالة هنا]: $e');
 
-      String userMessage = 'حدث خطأ غير متوقع، يرجى المحاولة مرة أخرى.';
+      String userMessage =
+          'حدث خطأ في الاتصال بالانترنت، يرجى المحاولة مرة أخرى.';
 
       // تحديد نوع الخطأ بناءً على نص الاستثناء
       final errorString = e.toString().toLowerCase();
@@ -630,7 +638,8 @@ class AuthService {
       // طباعة الخطأ الحقيقي للمطور في الـ Console
       print('⚠️ خطأ تقني في [اسم الدالة هنا]: $e');
 
-      String userMessage = 'حدث خطأ غير متوقع، يرجى المحاولة مرة أخرى.';
+      String userMessage =
+          'حدث خطأ في الاتصال بالانترنت، يرجى المحاولة مرة أخرى.';
 
       // تحديد نوع الخطأ بناءً على نص الاستثناء
       final errorString = e.toString().toLowerCase();
@@ -685,7 +694,8 @@ class AuthService {
       // طباعة الخطأ الحقيقي للمطور في الـ Console
       print('⚠️ خطأ تقني في [اسم الدالة هنا]: $e');
 
-      String userMessage = 'حدث خطأ غير متوقع، يرجى المحاولة مرة أخرى.';
+      String userMessage =
+          'حدث خطأ في الاتصال بالانترنت، يرجى المحاولة مرة أخرى.';
 
       // تحديد نوع الخطأ بناءً على نص الاستثناء
       final errorString = e.toString().toLowerCase();
@@ -746,7 +756,8 @@ class AuthService {
       // طباعة الخطأ الحقيقي للمطور في الـ Console
       print('⚠️ خطأ تقني في [اسم الدالة هنا]: $e');
 
-      String userMessage = 'حدث خطأ غير متوقع، يرجى المحاولة مرة أخرى.';
+      String userMessage =
+          'حدث خطأ في الاتصال بالانترنت، يرجى المحاولة مرة أخرى.';
 
       // تحديد نوع الخطأ بناءً على نص الاستثناء
       final errorString = e.toString().toLowerCase();
@@ -798,7 +809,8 @@ class AuthService {
       // طباعة الخطأ الحقيقي للمطور في الـ Console
       print('⚠️ خطأ تقني في [اسم الدالة هنا]: $e');
 
-      String userMessage = 'حدث خطأ غير متوقع، يرجى المحاولة مرة أخرى.';
+      String userMessage =
+          'حدث خطأ في الاتصال بالانترنت، يرجى المحاولة مرة أخرى.';
 
       // تحديد نوع الخطأ بناءً على نص الاستثناء
       final errorString = e.toString().toLowerCase();
@@ -843,7 +855,8 @@ class AuthService {
       // طباعة الخطأ الحقيقي للمطور في الـ Console
       print('⚠️ خطأ تقني في [اسم الدالة هنا]: $e');
 
-      String userMessage = 'حدث خطأ غير متوقع، يرجى المحاولة مرة أخرى.';
+      String userMessage =
+          'حدث خطأ في الاتصال بالانترنت، يرجى المحاولة مرة أخرى.';
 
       // تحديد نوع الخطأ بناءً على نص الاستثناء
       final errorString = e.toString().toLowerCase();
@@ -1034,7 +1047,8 @@ class AuthService {
       // طباعة الخطأ الحقيقي للمطور في الـ Console
       print('⚠️ خطأ تقني في [اسم الدالة هنا]: $e');
 
-      String userMessage = 'حدث خطأ غير متوقع، يرجى المحاولة مرة أخرى.';
+      String userMessage =
+          'حدث خطأ في الاتصال بالانترنت، يرجى المحاولة مرة أخرى.';
 
       // تحديد نوع الخطأ بناءً على نص الاستثناء
       final errorString = e.toString().toLowerCase();
@@ -1092,7 +1106,8 @@ class AuthService {
       // طباعة الخطأ الحقيقي للمطور في الـ Console
       print('⚠️ خطأ تقني في [اسم الدالة هنا]: $e');
 
-      String userMessage = 'حدث خطأ غير متوقع، يرجى المحاولة مرة أخرى.';
+      String userMessage =
+          'حدث خطأ في الاتصال بالانترنت، يرجى المحاولة مرة أخرى.';
 
       // تحديد نوع الخطأ بناءً على نص الاستثناء
       final errorString = e.toString().toLowerCase();
@@ -1159,7 +1174,8 @@ class AuthService {
       // طباعة الخطأ الحقيقي للمطور في الـ Console
       print('⚠️ خطأ تقني في [اسم الدالة هنا]: $e');
 
-      String userMessage = 'حدث خطأ غير متوقع، يرجى المحاولة مرة أخرى.';
+      String userMessage =
+          'حدث خطأ في الاتصال بالانترنت، يرجى المحاولة مرة أخرى.';
 
       // تحديد نوع الخطأ بناءً على نص الاستثناء
       final errorString = e.toString().toLowerCase();
@@ -1210,7 +1226,8 @@ class AuthService {
       // طباعة الخطأ الحقيقي للمطور في الـ Console
       print('⚠️ خطأ تقني في [اسم الدالة هنا]: $e');
 
-      String userMessage = 'حدث خطأ غير متوقع، يرجى المحاولة مرة أخرى.';
+      String userMessage =
+          'حدث خطأ في الاتصال بالانترنت، يرجى المحاولة مرة أخرى.';
 
       // تحديد نوع الخطأ بناءً على نص الاستثناء
       final errorString = e.toString().toLowerCase();
@@ -1248,7 +1265,8 @@ class AuthService {
       // طباعة الخطأ الحقيقي للمطور في الـ Console
       print('⚠️ خطأ تقني في [اسم الدالة هنا]: $e');
 
-      String userMessage = 'حدث خطأ غير متوقع، يرجى المحاولة مرة أخرى.';
+      String userMessage =
+          'حدث خطأ في الاتصال بالانترنت، يرجى المحاولة مرة أخرى.';
 
       // تحديد نوع الخطأ بناءً على نص الاستثناء
       final errorString = e.toString().toLowerCase();
@@ -1292,7 +1310,8 @@ class AuthService {
       // طباعة الخطأ الحقيقي للمطور في الـ Console
       print('⚠️ خطأ تقني في [اسم الدالة هنا]: $e');
 
-      String userMessage = 'حدث خطأ غير متوقع، يرجى المحاولة مرة أخرى.';
+      String userMessage =
+          'حدث خطأ في الاتصال بالانترنت، يرجى المحاولة مرة أخرى.';
 
       // تحديد نوع الخطأ بناءً على نص الاستثناء
       final errorString = e.toString().toLowerCase();
@@ -1332,7 +1351,8 @@ class AuthService {
       // طباعة الخطأ الحقيقي للمطور في الـ Console
       print('⚠️ خطأ تقني في [اسم الدالة هنا]: $e');
 
-      String userMessage = 'حدث خطأ غير متوقع، يرجى المحاولة مرة أخرى.';
+      String userMessage =
+          'حدث خطأ في الاتصال بالانترنت، يرجى المحاولة مرة أخرى.';
 
       // تحديد نوع الخطأ بناءً على نص الاستثناء
       final errorString = e.toString().toLowerCase();
@@ -1375,7 +1395,8 @@ class AuthService {
       // طباعة الخطأ الحقيقي للمطور في الـ Console
       print('⚠️ خطأ تقني في [اسم الدالة هنا]: $e');
 
-      String userMessage = 'حدث خطأ غير متوقع، يرجى المحاولة مرة أخرى.';
+      String userMessage =
+          'حدث خطأ في الاتصال بالانترنت، يرجى المحاولة مرة أخرى.';
 
       // تحديد نوع الخطأ بناءً على نص الاستثناء
       final errorString = e.toString().toLowerCase();
@@ -1415,7 +1436,8 @@ class AuthService {
       // طباعة الخطأ الحقيقي للمطور في الـ Console
       print('⚠️ خطأ تقني في [اسم الدالة هنا]: $e');
 
-      String userMessage = 'حدث خطأ غير متوقع، يرجى المحاولة مرة أخرى.';
+      String userMessage =
+          'حدث خطأ في الاتصال بالانترنت، يرجى المحاولة مرة أخرى.';
 
       // تحديد نوع الخطأ بناءً على نص الاستثناء
       final errorString = e.toString().toLowerCase();
@@ -1479,7 +1501,8 @@ class AuthService {
       // طباعة الخطأ الحقيقي للمطور في الـ Console
       print('⚠️ خطأ تقني في [اسم الدالة هنا]: $e');
 
-      String userMessage = 'حدث خطأ غير متوقع، يرجى المحاولة مرة أخرى.';
+      String userMessage =
+          'حدث خطأ في الاتصال بالانترنت، يرجى المحاولة مرة أخرى.';
 
       // تحديد نوع الخطأ بناءً على نص الاستثناء
       final errorString = e.toString().toLowerCase();
@@ -1530,7 +1553,8 @@ class AuthService {
       // طباعة الخطأ الحقيقي للمطور في الـ Console
       print('⚠️ خطأ تقني في [اسم الدالة هنا]: $e');
 
-      String userMessage = 'حدث خطأ غير متوقع، يرجى المحاولة مرة أخرى.';
+      String userMessage =
+          'حدث خطأ في الاتصال بالانترنت، يرجى المحاولة مرة أخرى.';
 
       // تحديد نوع الخطأ بناءً على نص الاستثناء
       final errorString = e.toString().toLowerCase();
@@ -1584,7 +1608,8 @@ class AuthService {
       // طباعة الخطأ الحقيقي للمطور في الـ Console
       print('⚠️ خطأ تقني في [اسم الدالة هنا]: $e');
 
-      String userMessage = 'حدث خطأ غير متوقع، يرجى المحاولة مرة أخرى.';
+      String userMessage =
+          'حدث خطأ في الاتصال بالانترنت، يرجى المحاولة مرة أخرى.';
 
       // تحديد نوع الخطأ بناءً على نص الاستثناء
       final errorString = e.toString().toLowerCase();
@@ -1625,7 +1650,8 @@ class AuthService {
       // طباعة الخطأ الحقيقي للمطور في الـ Console
       print('⚠️ خطأ تقني في [اسم الدالة هنا]: $e');
 
-      String userMessage = 'حدث خطأ غير متوقع، يرجى المحاولة مرة أخرى.';
+      String userMessage =
+          'حدث خطأ في الاتصال بالانترنت، يرجى المحاولة مرة أخرى.';
 
       // تحديد نوع الخطأ بناءً على نص الاستثناء
       final errorString = e.toString().toLowerCase();
@@ -1677,7 +1703,8 @@ class AuthService {
       // طباعة الخطأ الحقيقي للمطور في الـ Console
       print('⚠️ خطأ تقني في [اسم الدالة هنا]: $e');
 
-      String userMessage = 'حدث خطأ غير متوقع، يرجى المحاولة مرة أخرى.';
+      String userMessage =
+          'حدث خطأ في الاتصال بالانترنت، يرجى المحاولة مرة أخرى.';
 
       // تحديد نوع الخطأ بناءً على نص الاستثناء
       final errorString = e.toString().toLowerCase();
@@ -1730,7 +1757,8 @@ class AuthService {
       // طباعة الخطأ الحقيقي للمطور في الـ Console
       print('⚠️ خطأ تقني في [اسم الدالة هنا]: $e');
 
-      String userMessage = 'حدث خطأ غير متوقع، يرجى المحاولة مرة أخرى.';
+      String userMessage =
+          'حدث خطأ في الاتصال بالانترنت، يرجى المحاولة مرة أخرى.';
 
       // تحديد نوع الخطأ بناءً على نص الاستثناء
       final errorString = e.toString().toLowerCase();
@@ -1780,7 +1808,8 @@ class AuthService {
       // طباعة الخطأ الحقيقي للمطور في الـ Console
       print('⚠️ خطأ تقني في [اسم الدالة هنا]: $e');
 
-      String userMessage = 'حدث خطأ غير متوقع، يرجى المحاولة مرة أخرى.';
+      String userMessage =
+          'حدث خطأ في الاتصال بالانترنت، يرجى المحاولة مرة أخرى.';
 
       // تحديد نوع الخطأ بناءً على نص الاستثناء
       final errorString = e.toString().toLowerCase();
@@ -1871,7 +1900,8 @@ class AuthService {
       // طباعة الخطأ الحقيقي للمطور في الـ Console
       print('⚠️ خطأ تقني في [اسم الدالة هنا]: $e');
 
-      String userMessage = 'حدث خطأ غير متوقع، يرجى المحاولة مرة أخرى.';
+      String userMessage =
+          'حدث خطأ في الاتصال بالانترنت، يرجى المحاولة مرة أخرى.';
 
       // تحديد نوع الخطأ بناءً على نص الاستثناء
       final errorString = e.toString().toLowerCase();
@@ -1928,7 +1958,8 @@ class AuthService {
       // طباعة الخطأ الحقيقي للمطور في الـ Console
       print('⚠️ خطأ تقني في [اسم الدالة هنا]: $e');
 
-      String userMessage = 'حدث خطأ غير متوقع، يرجى المحاولة مرة أخرى.';
+      String userMessage =
+          'حدث خطأ في الاتصال بالانترنت، يرجى المحاولة مرة أخرى.';
 
       // تحديد نوع الخطأ بناءً على نص الاستثناء
       final errorString = e.toString().toLowerCase();
@@ -2001,7 +2032,8 @@ class AuthService {
       // طباعة الخطأ الحقيقي للمطور في الـ Console
       print('⚠️ خطأ تقني في [اسم الدالة هنا]: $e');
 
-      String userMessage = 'حدث خطأ غير متوقع، يرجى المحاولة مرة أخرى.';
+      String userMessage =
+          'حدث خطأ في الاتصال بالانترنت، يرجى المحاولة مرة أخرى.';
 
       // تحديد نوع الخطأ بناءً على نص الاستثناء
       final errorString = e.toString().toLowerCase();
@@ -2063,7 +2095,8 @@ class AuthService {
       // طباعة الخطأ الحقيقي للمطور في الـ Console
       print('⚠️ خطأ تقني في [اسم الدالة هنا]: $e');
 
-      String userMessage = 'حدث خطأ غير متوقع، يرجى المحاولة مرة أخرى.';
+      String userMessage =
+          'حدث خطأ في الاتصال بالانترنت، يرجى المحاولة مرة أخرى.';
 
       // تحديد نوع الخطأ بناءً على نص الاستثناء
       final errorString = e.toString().toLowerCase();
@@ -2105,7 +2138,8 @@ class AuthService {
       // طباعة الخطأ الحقيقي للمطور في الـ Console
       print('⚠️ خطأ تقني في [اسم الدالة هنا]: $e');
 
-      String userMessage = 'حدث خطأ غير متوقع، يرجى المحاولة مرة أخرى.';
+      String userMessage =
+          'حدث خطأ في الاتصال بالانترنت، يرجى المحاولة مرة أخرى.';
 
       // تحديد نوع الخطأ بناءً على نص الاستثناء
       final errorString = e.toString().toLowerCase();
@@ -2164,7 +2198,8 @@ class AuthService {
       // طباعة الخطأ الحقيقي للمطور في الـ Console
       print('⚠️ خطأ تقني في [اسم الدالة هنا]: $e');
 
-      String userMessage = 'حدث خطأ غير متوقع، يرجى المحاولة مرة أخرى.';
+      String userMessage =
+          'حدث خطأ في الاتصال بالانترنت، يرجى المحاولة مرة أخرى.';
 
       // تحديد نوع الخطأ بناءً على نص الاستثناء
       final errorString = e.toString().toLowerCase();
@@ -2214,7 +2249,8 @@ class AuthService {
       // طباعة الخطأ الحقيقي للمطور في الـ Console
       print('⚠️ خطأ تقني في [اسم الدالة هنا]: $e');
 
-      String userMessage = 'حدث خطأ غير متوقع، يرجى المحاولة مرة أخرى.';
+      String userMessage =
+          'حدث خطأ في الاتصال بالانترنت، يرجى المحاولة مرة أخرى.';
 
       // تحديد نوع الخطأ بناءً على نص الاستثناء
       final errorString = e.toString().toLowerCase();
@@ -2275,7 +2311,8 @@ class AuthService {
       // طباعة الخطأ الحقيقي للمطور في الـ Console
       print('⚠️ خطأ تقني في [اسم الدالة هنا]: $e');
 
-      String userMessage = 'حدث خطأ غير متوقع، يرجى المحاولة مرة أخرى.';
+      String userMessage =
+          'حدث خطأ في الاتصال بالانترنت، يرجى المحاولة مرة أخرى.';
 
       // تحديد نوع الخطأ بناءً على نص الاستثناء
       final errorString = e.toString().toLowerCase();
