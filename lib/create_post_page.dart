@@ -161,7 +161,7 @@ class _CreatePostPageState extends State<CreatePostPage> {
         children: [
           Expanded(
             child: Text(
-              "انرجوا منكم الالتزام بمعايير الاخلاق و عدم نشر أي معلومات أو صور مضللة أو فاضحة بما يخص المنتج، شاكرين حسنَ تعاونكم  تحت طائلة الحذف و المسؤولية .",
+              "نرجوا منكم الالتزام بمعايير الاخلاق و عدم نشر أي معلومات أو صور مضللة أو فاضحة بما يخص المنتج، تحت طائلة الحذف و المسؤولية,  شاكرين حسنَ تعاونكم .",
               style: TextStyle(
                 fontSize: 12, // حجم نص أصغر ليناسب الشريط
                 color: isDarkMode ? Colors.white70 : Colors.black87,
@@ -183,239 +183,240 @@ class _CreatePostPageState extends State<CreatePostPage> {
         backgroundColor: Colors.blue,
         foregroundColor: Colors.white,
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Form(
-          key: _formKey,
-          child: ListView(
-            children: [
-              // إضافة شريط التنبيه هنا
-              _buildDisclaimer(),
-              SizedBox(height: 16),
+      body: Form(
+        key: _formKey,
+        child: ListView(
+          // إزالة Padding الخارجي لتقليل الهوامش
+          padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+          children: [
+            // إضافة شريط التنبيه هنا
+            _buildDisclaimer(),
 
-              // قسم اختيار السوق/القسم
+            // قسم اختيار السوق/القسم
+            Text(
+              'اختر القسم:',
+              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+            ),
+            SizedBox(height: 8), // مسموح بمسافة صغيرة للوضوح
+            DropdownButtonFormField<String>(
+              value: _selectedMarket,
+              hint: Text('اختر القسم المناسب للمنشور'),
+              onChanged: (String? newValue) {
+                setState(() {
+                  _selectedMarket = newValue;
+                });
+              },
+              validator: (value) {
+                if (value == null || value.isEmpty) {
+                  return 'الرجاء اختيار قسم للمنشور';
+                }
+                return null;
+              },
+              items: _markets.map<DropdownMenuItem<String>>((market) {
+                return DropdownMenuItem<String>(
+                  value: market['name'],
+                  child: Text(market['name']),
+                );
+              }).toList(),
+            ),
+
+            // باقي الحقول كما هي (مع فواصل معقولة)
+            SizedBox(height: 16),
+            TextFormField(
+              controller: _titleController,
+              decoration: InputDecoration(
+                labelText: 'عنوان المنشور',
+                border: OutlineInputBorder(),
+                prefixIcon: Icon(Icons.title),
+              ),
+              validator: (value) {
+                if (value == null || value.isEmpty) {
+                  return 'الرجاء إدخال عنوان للمنشور';
+                }
+                return null;
+              },
+            ),
+
+            SizedBox(height: 16),
+            // حقل السعر
+            TextFormField(
+              controller: _priceController,
+              keyboardType: TextInputType.number,
+              decoration: InputDecoration(
+                labelText: 'السعر',
+                border: OutlineInputBorder(),
+                prefixIcon: Icon(Icons.attach_money),
+              ),
+              validator: (value) {
+                if (value == null || value.isEmpty) {
+                  return 'الرجاء إدخال السعر';
+                }
+                return null;
+              },
+            ),
+            SizedBox(height: 16),
+
+            // حقل المكان
+            TextFormField(
+              controller: _locationController,
+              decoration: InputDecoration(
+                labelText: 'المكان',
+                border: OutlineInputBorder(),
+                prefixIcon: Icon(Icons.location_on),
+              ),
+              validator: (value) {
+                if (value == null || value.isEmpty) {
+                  return 'الرجاء إدخال المكان';
+                }
+                return null;
+              },
+            ),
+            SizedBox(height: 16),
+
+            // حقل الملاحظات
+            TextFormField(
+              controller: _notesController,
+              maxLines: 5,
+              decoration: InputDecoration(
+                labelText: 'وصف المنشور',
+                alignLabelWithHint: true,
+                border: OutlineInputBorder(),
+                prefixIcon: Icon(Icons.description),
+              ),
+              validator: (value) {
+                if (value == null || value.isEmpty) {
+                  return 'الرجاء إدخال وصف للمنشور';
+                }
+                return null;
+              },
+            ),
+            SizedBox(height: 16),
+
+            // أزرار إضافة الوسائط
+            Row(
+              children: [
+                Expanded(
+                  child: ElevatedButton.icon(
+                    onPressed: _pickImage,
+                    icon: Icon(Icons.image, color: Colors.white),
+                    label: Text(
+                      'إضافة صور',
+                      style: TextStyle(color: Colors.white),
+                    ),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.blueAccent,
+                    ),
+                  ),
+                ),
+                SizedBox(width: 10),
+                Expanded(
+                  child: ElevatedButton.icon(
+                    onPressed: _pickVideo,
+                    icon: Icon(Icons.video_file, color: Colors.white),
+                    label: Text(
+                      'إضافة فيديو',
+                      style: TextStyle(color: Colors.white),
+                    ),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.blueAccent,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            SizedBox(height: 16),
+
+            // معاينة الصور المضافة
+            if (_images.isNotEmpty) ...[
               Text(
-                'اختر القسم:',
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                'الصور المضافة:',
+                style: TextStyle(fontWeight: FontWeight.bold),
               ),
               SizedBox(height: 8),
-              DropdownButtonFormField<String>(
-                value: _selectedMarket,
-                hint: Text('اختر القسم المناسب للمنشور'),
-                onChanged: (String? newValue) {
-                  setState(() {
-                    _selectedMarket = newValue;
-                  });
-                },
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'الرجاء اختيار قسم للمنشور';
-                  }
-                  return null;
-                },
-                items: _markets.map<DropdownMenuItem<String>>((market) {
-                  return DropdownMenuItem<String>(
-                    value: market['name'],
-                    child: Text(market['name']),
+              Wrap(
+                spacing: 8.0,
+                runSpacing: 8.0,
+                children: _images.map((img) {
+                  return Stack(
+                    children: [
+                      Image.memory(
+                        img['bytes'],
+                        width: 100,
+                        height: 100,
+                        fit: BoxFit.cover,
+                      ),
+                      Positioned(
+                        top: 0,
+                        right: 0,
+                        child: IconButton(
+                          icon: Icon(Icons.close, color: Colors.white),
+                          onPressed: () {
+                            setState(() {
+                              _images.remove(img);
+                            });
+                          },
+                        ),
+                      ),
+                    ],
                   );
                 }).toList(),
               ),
               SizedBox(height: 16),
-              TextFormField(
-                controller: _titleController,
-                decoration: InputDecoration(
-                  labelText: 'عنوان المنشور',
-                  border: OutlineInputBorder(),
-                  prefixIcon: Icon(Icons.title),
-                ),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'الرجاء إدخال عنوان للمنشور';
-                  }
-                  return null;
-                },
+            ],
+            // معاينة الفيديو المضاف
+            if (_video != null) ...[
+              Text(
+                'الفيديو المضاف:',
+                style: TextStyle(fontWeight: FontWeight.bold),
               ),
-              SizedBox(height: 16),
-              // حقل السعر
-              TextFormField(
-                controller: _priceController,
-                keyboardType: TextInputType.number,
-                decoration: InputDecoration(
-                  labelText: 'السعر',
-                  border: OutlineInputBorder(),
-                  prefixIcon: Icon(Icons.attach_money),
-                ),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'الرجاء إدخال السعر';
-                  }
-                  return null;
-                },
-              ),
-              SizedBox(height: 16),
-
-              // حقل المكان
-              TextFormField(
-                controller: _locationController,
-                decoration: InputDecoration(
-                  labelText: 'المكان',
-                  border: OutlineInputBorder(),
-                  prefixIcon: Icon(Icons.location_on),
-                ),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'الرجاء إدخال المكان';
-                  }
-                  return null;
-                },
-              ),
-              SizedBox(height: 16),
-
-              // حقل الملاحظات
-              TextFormField(
-                controller: _notesController,
-                maxLines: 5,
-                decoration: InputDecoration(
-                  labelText: 'وصف المنشور',
-                  alignLabelWithHint: true,
-                  border: OutlineInputBorder(),
-                  prefixIcon: Icon(Icons.description),
-                ),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'الرجاء إدخال وصف للمنشور';
-                  }
-                  return null;
-                },
-              ),
-              SizedBox(height: 16),
-
-              // أزرار إضافة الوسائط
-              Row(
+              SizedBox(height: 8),
+              Stack(
                 children: [
-                  Expanded(
-                    child: ElevatedButton.icon(
-                      onPressed: _pickImage,
-                      icon: Icon(Icons.image, color: Colors.white),
-                      label: Text(
-                        'إضافة صور',
-                        style: TextStyle(color: Colors.white),
-                      ),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.blueAccent,
+                  Container(
+                    width: double.infinity,
+                    height: 200,
+                    color: Colors.black,
+                    child: Center(
+                      child: Icon(
+                        Icons.play_circle_fill,
+                        color: Colors.white,
+                        size: 50,
                       ),
                     ),
                   ),
-                  SizedBox(width: 10),
-                  Expanded(
-                    child: ElevatedButton.icon(
-                      onPressed: _pickVideo,
-                      icon: Icon(Icons.video_file, color: Colors.white),
-                      label: Text(
-                        'إضافة فيديو',
-                        style: TextStyle(color: Colors.white),
-                      ),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.blueAccent,
-                      ),
+                  Positioned(
+                    top: 0,
+                    right: 0,
+                    child: IconButton(
+                      icon: Icon(Icons.close, color: Colors.white),
+                      onPressed: () {
+                        setState(() {
+                          _video = null;
+                        });
+                      },
                     ),
                   ),
                 ],
               ),
               SizedBox(height: 16),
+            ],
 
-              // معاينة الصور المضافة
-              if (_images.isNotEmpty) ...[
-                Text(
-                  'الصور المضافة:',
-                  style: TextStyle(fontWeight: FontWeight.bold),
-                ),
-                SizedBox(height: 8),
-                Wrap(
-                  spacing: 8.0,
-                  runSpacing: 8.0,
-                  children: _images.map((img) {
-                    return Stack(
-                      children: [
-                        Image.memory(
-                          img['bytes'],
-                          width: 100,
-                          height: 100,
-                          fit: BoxFit.cover,
-                        ),
-                        Positioned(
-                          top: 0,
-                          right: 0,
-                          child: IconButton(
-                            icon: Icon(Icons.close, color: Colors.white),
-                            onPressed: () {
-                              setState(() {
-                                _images.remove(img);
-                              });
-                            },
-                          ),
-                        ),
-                      ],
-                    );
-                  }).toList(),
-                ),
-                SizedBox(height: 16),
-              ],
-              // معاينة الفيديو المضاف
-              if (_video != null) ...[
-                Text(
-                  'الفيديو المضاف:',
-                  style: TextStyle(fontWeight: FontWeight.bold),
-                ),
-                SizedBox(height: 8),
-                Stack(
-                  children: [
-                    Container(
-                      width: double.infinity,
-                      height: 200,
-                      color: Colors.black,
-                      child: Center(
-                        child: Icon(
-                          Icons.play_circle_fill,
-                          color: Colors.white,
-                          size: 50,
-                        ),
-                      ),
-                    ),
-                    Positioned(
-                      top: 0,
-                      right: 0,
-                      child: IconButton(
-                        icon: Icon(Icons.close, color: Colors.white),
-                        onPressed: () {
-                          setState(() {
-                            _video = null;
-                          });
-                        },
-                      ),
-                    ),
-                  ],
-                ),
-                SizedBox(height: 16),
-              ],
-
-              // زر النشر
-              ElevatedButton(
-                onPressed: _submitPost,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.green,
-                  padding: EdgeInsets.symmetric(vertical: 15),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                ),
-                child: Text(
-                  'نشر المنشور',
-                  style: TextStyle(fontSize: 18, color: Colors.white),
+            // زر النشر
+            ElevatedButton(
+              onPressed: _submitPost,
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.green,
+                padding: EdgeInsets.symmetric(vertical: 15),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
                 ),
               ),
-            ],
-          ),
+              child: Text(
+                'نشر المنشور',
+                style: TextStyle(fontSize: 18, color: Colors.white),
+              ),
+            ),
+          ],
         ),
       ),
     );

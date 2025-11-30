@@ -51,7 +51,7 @@
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
                 <!-- ربط النمط مع رابط موقعك -->
-                <data android:scheme="https" android:host="minexsy.site" android:pathPrefix="/posts" />
+                <data android:scheme="https" android:host="minexsy.site" android:pathPrefix="/api" />
                 <!-- يمكنك إضافة نمط إضافي للـ http إذا أردت -->
                 <!-- <data android:scheme="http" android:host="kiniru.site" android:pathPrefix="/post" /> -->
             </intent-filter>
