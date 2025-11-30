@@ -489,7 +489,7 @@ class _CategoriesPageState extends State<CategoriesPage> {
   }
 
   void _showContactDialog(BuildContext context) {
-    const phoneNumber = '+44 7950 227398';
+    const phoneNumber = '+963960084890';
     final isDarkMode = Theme.of(context).brightness == Brightness.dark;
 
     showDialog(
