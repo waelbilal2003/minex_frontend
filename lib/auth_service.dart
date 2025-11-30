@@ -1593,32 +1593,45 @@ class AuthService {
   }
 
   // ⭐ دالة جديدة لجلب منشور محدد حسب الرقم التعريفي
-  static Future<Map<String, dynamic>> getPostById(int postId) async {
-    final headers =
-        await _getHeaders(); // استخدام الدالة المساعدة لجلب الهيدرز (مثل التوكن)
-    final response = await http.get(
-      Uri.parse(
-          '$baseUrl/posts/$postId'), // ⭐ مسار API مثال - يجب أن يطابق مسار API الحقيقي في خادمك
-      headers: headers,
-    );
+  // في ملف auth_service.dart، استبدل الدالة القديمة بهذه الدالة المعدلة
 
-    if (response.statusCode == 200) {
-      final data = json.decode(response.body);
-      // تأكد من هيكل البيانات التي يُرجعها الخادم
-      // مثال: {"success": true, "post": {...}}
-      // أو: {"id": ..., "title": ..., "content": ..., ...}
-      if (data.containsKey('post')) {
-        // إذا كان الخادم يعيد المنشور داخل كائن باسم 'post'
-        return {'success': true, 'post': data['post']};
-      } else {
-        // إذا كان الخادم يعيد المنشور مباشرة
-        return {'success': true, 'post': data};
+  static Future<Map<String, dynamic>> getPostById(int postId) async {
+    try {
+      // 1. استخدام الدالة العامة getHeaders() لجلب التوكن بشكل صحيح
+      final token = await getToken();
+
+      // 2. بناء الرابط الصحيح مع إضافة /api
+      final uri = Uri.parse('$baseUrl/api/posts/$postId');
+
+      print('📤 جلب منشور واحد من: $uri'); // للتصحيح
+
+      final response = await http
+          .get(uri, headers: getHeaders(token)) // استخدام getHeaders العامة
+          .timeout(const Duration(seconds: 30));
+
+      final result = _handleResponse(response, 'get_post_by_id');
+
+      // 3. تحليل الاستجابة الصحيحة
+      if (result['success'] == true) {
+        // الباك إند يعيد البيانات في مفتاح 'data'
+        final postData = result['data'];
+        if (postData != null) {
+          return {
+            'success': true,
+            'post':
+                postData, // وضع البيانات تحت مفتاح 'post' كما يتوقع Frontend
+          };
+        } else {
+          return {'success': false, 'message': 'بيانات المنشور فارغة'};
+        }
       }
-    } else {
-      final errorData = json.decode(response.body);
+
+      return result;
+    } catch (e) {
+      print(' خطأ في جلب المنشور: $e');
       return {
         'success': false,
-        'message': errorData['message'] ?? 'فشل في جلب المنشور'
+        'message': 'خطأ في جلب المنشور: ${e.toString()}',
       };
     }
   }
