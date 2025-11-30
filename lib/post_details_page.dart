@@ -81,7 +81,7 @@ class _PostDetailsPageState extends State<PostDetailsPage> {
                 final postTitle = _post!['title'] ??
                     _post!['content']?.substring(0, 30) ??
                     'منشور';
-                final url = 'https://minexsy.site/posts/$postId';
+                final url = 'https://minexsy.site/api/posts/$postId';
 
                 // نسخ الرابط إلى الحافظة
                 Clipboard.setData(ClipboardData(text: url));
