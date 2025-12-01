@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart'; // استيراد حزمة الخدمات
+import 'package:url_launcher/url_launcher.dart'; // استيراد حزمة إطلاق الروابط
 import 'auth_service.dart';
 import 'login_page.dart';
 import 'user_profile_page.dart';
@@ -115,6 +117,13 @@ class _ProfilePageState extends State<ProfilePage> {
                   ),
                 );
               },
+            ),
+
+            // زر مشاركة التطبيق الجديد
+            _buildSettingsItem(
+              icon: Icons.share,
+              title: 'مشاركة التطبيق',
+              onTap: () => _shareApp(),
             ),
             // 👆👆👆 نهاية الكود الجديد 👆👆👆
 
@@ -447,28 +456,75 @@ class _ProfilePageState extends State<ProfilePage> {
     showDialog(
       context: context,
       builder: (BuildContext context) {
+        const String email = 'minexsy00@gmail.com';
+        const String phone = '+963960084890';
+
         return AlertDialog(
           title: const Text('المساعدة والدعم'),
-          content: const Column(
+          content: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text('للحصول على المساعدة، يمكنك التواصل معنا عبر:'),
-              SizedBox(height: 16),
-              Row(
-                children: [
-                  Icon(Icons.email, color: Colors.blue),
-                  SizedBox(width: 8),
-                  Text('minexsy00@gmial.com'),
-                ],
+              const Text('للحصول على المساعدة، يمكنك التواصل معنا عبر:'),
+              const SizedBox(height: 16),
+              GestureDetector(
+                onTap: () {
+                  // نسخ البريد الإلكتروني إلى الحافظة
+                  Clipboard.setData(const ClipboardData(text: email));
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('تم نسخ البريد الإلكتروني')),
+                  );
+                },
+                child: Row(
+                  children: [
+                    const Icon(Icons.email, color: Colors.blue),
+                    const SizedBox(width: 8),
+                    const Text(email),
+                    const Spacer(),
+                    IconButton(
+                      icon: const Icon(Icons.copy, size: 18),
+                      onPressed: () {
+                        Clipboard.setData(const ClipboardData(text: email));
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                              content: Text('تم نسخ البريد الإلكتروني')),
+                        );
+                      },
+                    ),
+                  ],
+                ),
               ),
-              SizedBox(height: 8),
-              Row(
-                children: [
-                  Icon(Icons.phone, color: Colors.green),
-                  SizedBox(width: 8),
-                  Text('+963960084890'),
-                ],
+              const SizedBox(height: 8),
+              GestureDetector(
+                onTap: () {
+                  // نسخ رقم الهاتف إلى الحافظة
+                  Clipboard.setData(const ClipboardData(text: phone));
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('تم نسخ رقم الهاتف')),
+                  );
+                },
+                child: Row(
+                  children: [
+                    const Icon(Icons.phone, color: Colors.green),
+                    const SizedBox(width: 8),
+                    const Text(phone),
+                    const Spacer(),
+                    IconButton(
+                      icon: const Icon(Icons.copy, size: 18),
+                      onPressed: () {
+                        Clipboard.setData(const ClipboardData(text: phone));
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(content: Text('تم نسخ رقم الهاتف')),
+                        );
+                      },
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 16),
+              const Text(
+                'انقر على أي من المعلومات أعلاه لنسخها',
+                style: TextStyle(fontSize: 12, color: Colors.grey),
               ),
             ],
           ),
@@ -605,5 +661,77 @@ class _ProfilePageState extends State<ProfilePage> {
         );
       }
     }
+  }
+
+  // دالة مشاركة التطبيق الجديدة
+  void _shareApp() {
+    const String appUrl = 'https://minexsy.site/download';
+    const String shareText =
+        'حمل تطبيق Minex الآن! السوق المفتوح الأول في سوريا\n$appUrl';
+
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('مشاركة التطبيق'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Text('شارك رابط تحميل التطبيق مع أصدقائك:'),
+              const SizedBox(height: 16),
+              SelectableText(
+                appUrl,
+                style: const TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.blue,
+                ),
+              ),
+              const SizedBox(height: 16),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  ElevatedButton.icon(
+                    onPressed: () {
+                      // نسخ الرابط إلى الحافظة
+                      Clipboard.setData(const ClipboardData(text: appUrl));
+                      Navigator.of(context).pop();
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text('تم نسخ الرابط')),
+                      );
+                    },
+                    icon: const Icon(Icons.copy),
+                    label: const Text('نسخ الرابط'),
+                  ),
+                  ElevatedButton.icon(
+                    onPressed: () async {
+                      // مشاركة الرابط عبر التطبيقات المتاحة
+                      Navigator.of(context).pop();
+                      try {
+                        // استخدام حزمة share للمشاركة
+                        // في حالة عدم وجود حزمة share، يمكن استخدام الطريقة البديلة
+                        await launchUrl(Uri.parse(appUrl));
+                      } catch (e) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(content: Text('لا يمكن فتح الرابط')),
+                        );
+                      }
+                    },
+                    icon: const Icon(Icons.share),
+                    label: const Text('مشاركة'),
+                  ),
+                ],
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text('إغلاق'),
+            ),
+          ],
+        );
+      },
+    );
   }
 }

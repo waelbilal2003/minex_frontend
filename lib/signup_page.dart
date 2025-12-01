@@ -715,7 +715,33 @@ class _SignupPageState extends State<SignupPage> {
                     ),
                   ],
                 ),
-                const SizedBox(height: 20),
+                const SizedBox(height: 10),
+
+                // إضافة عبارة التحذير هنا
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  margin: const EdgeInsets.only(bottom: 20),
+                  decoration: BoxDecoration(
+                    color: Colors.amber.withOpacity(0.2),
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(color: Colors.amber),
+                  ),
+                  child: Row(
+                    children: [
+                      Icon(Icons.warning, color: Colors.amber[800]),
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: Text(
+                          'تنبيه: احفظ بريدك وكلمة مرورك، فسوف تحتاجهم في الصفحة التالية.',
+                          style: TextStyle(
+                            color: Colors.amber[800],
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
 
                 // زر إنشاء الحساب
                 SizedBox(

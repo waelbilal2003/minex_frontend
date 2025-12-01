@@ -247,6 +247,33 @@ class _LoginPageState extends State<LoginPage> {
                   ),
                 ),
                 const SizedBox(height: 30),
+
+                // إضافة العبارة المطلوبة هنا
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  margin: const EdgeInsets.only(bottom: 20),
+                  decoration: BoxDecoration(
+                    color: Colors.blue.withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(color: Colors.blue.withOpacity(0.3)),
+                  ),
+                  child: Row(
+                    children: [
+                      Icon(Icons.info_outline, color: Colors.blue[700]),
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: Text(
+                          'إذا كنت قد أنشأت حسابك، أعد إدخال بريدك أو رقم هاتفك مع كلمة المرور',
+                          style: TextStyle(
+                            color: Colors.blue[700],
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+
                 TextFormField(
                   controller: _emailOrPhoneController,
                   decoration: const InputDecoration(
