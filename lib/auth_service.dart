@@ -72,7 +72,6 @@ class AuthService {
   }
 
   // معالج الاستجابة الموحد
-  // معالج الاستجابة الموحد والمحسّن
   static Map<String, dynamic> _handleResponse(
     http.Response response,
     String action,
@@ -97,7 +96,8 @@ class AuthService {
         return body;
       }
     } catch (e) {
-      print(' خطأ في تحليل JSON: $e'); // طباعة الخطأ الحقيقي للمطور
+      // --- تم تعديل هذا الجزء ليكون آمناً على الويب ---
+      print(' خطأ في تحليل JSON: ${e.toString()}'); // <--- التعديل هنا
     }
 
     // إذا فشل التحليل، أنشئ رسالة خطأ بسيطة للمستخدم
@@ -447,6 +447,8 @@ class AuthService {
   // ======== العمليات الأساسية ========
 
   // تسجيل مستخدم جديد (البريد الإلكتروني إلزامي)
+  // --- استبدل دالة register بالكامل بهذه النسخة المحسّنة ---
+  // --- استبدل دالة register بالكامل بهذه النسخة النهائية المصححة ---
   static Future<Map<String, dynamic>> register({
     required String fullName,
     required String email,
@@ -455,9 +457,12 @@ class AuthService {
     String? phone,
     String? userType,
   }) async {
+    UserCredential?
+        firebaseUser; // تعريف المتغير خارج try ليكون متاحاً في كل الدالة
+
     try {
       // 1. تسجيل المستخدم في Firebase
-      UserCredential firebaseUser = await _auth.createUserWithEmailAndPassword(
+      firebaseUser = await _auth.createUserWithEmailAndPassword(
         email: email,
         password: password,
       );
@@ -474,7 +479,7 @@ class AuthService {
         print("⚠️ Failed to get FCM token");
       }
 
-      // 4. إعداد بيانات الطلب وإرسالها للخادم
+      // 4. إعداد بيانات الطلب
       final Map<String, String> requestData = {
         'full_name': fullName,
         'email': email,
@@ -489,6 +494,7 @@ class AuthService {
         requestData['device_token'] = deviceToken;
       }
 
+      // 5. إرسال البيانات إلى الخادم الخاص بك
       final response = await http
           .post(
             Uri.parse('$baseUrl/api/register'),
@@ -500,18 +506,24 @@ class AuthService {
       final result = _handleResponse(response, 'register');
 
       if (result['success'] == true) {
-        // لا نقوم بتسجيل الدخول هنا، بل نطلب من المستخدم التحقق من بريده
+        // إذا نجح كل شيء، أرجع النتيجة
         return {
           'success': true,
           'message':
               'تم التسجيل بنجاح! يرجى التحقق من بريدك الإلكتروني لتفعيل حسابك.',
         };
+      } else {
+        // إذا فشل التسجيل في الخادم، احذف المستخدم من Firebase لتجنب حسابات متروكة
+        if (firebaseUser != null) {
+          await firebaseUser.user!.delete();
+          print("فشل تسجيل الخادم، تم حذف حساب Firebase.");
+        }
+        return result; // أرجع رسالة الخطأ من الخادم
       }
-
-      // إذا فشل التسجيل في الخادم، احذف المستخدم من Firebase
-      await firebaseUser.user!.delete();
-      return result;
     } on FirebaseAuthException catch (e) {
+      // هذا الخطأ يعني أن التسجيل في نفس Firebase قد فشل (مثلاً بريد مكرر)
+      // لا حاجة للحذف هنا لأن الحساب لم يُنشأ أصلاً
+      print('🔴 خطأ Firebase: ${e.message}');
       String message = 'فشل إنشاء الحساب.';
       if (e.code == 'weak-password') {
         message = 'كلمة المرور ضعيفة جداً.';
@@ -520,8 +532,33 @@ class AuthService {
       }
       return {'success': false, 'message': message};
     } catch (e) {
-      print(' خطأ في تسجيل المستخدم: $e');
-      return {'success': false, 'message': 'حدث خطأ غير متوقع.'};
+      // هذا الخطأ يلتقط مشاكل الشبكة (مثل انقطاع الإنترنت أو فشل الخادم)
+      print('🔴 خطأ عام: ${e.toString()}');
+
+      String userMessage = 'حدث خطأ غير متوقع.';
+      final errorString = e.toString().toLowerCase();
+
+      if (errorString.contains('socketexception') ||
+          errorString.contains('connection refused')) {
+        userMessage =
+            'لا يوجد اتصال بالإنترنت. يرجى التحقق من الشبكة والمحاولة مرة أخرى.';
+      } else if (errorString.contains('timeout')) {
+        userMessage = 'استغرق الأمر وقتًا طويلاً، يرجى المحاولة مرة أخرى.';
+      } else if (errorString.contains('failed to fetch')) {
+        userMessage = 'فشل الاتصال بالخادم، يرجى المحاولة لاحقًا.';
+      }
+
+      // هنا مكان الحذف الصحيح: إذا تم إنشاء المستخدم في Firebase ولكن فشلت عملية الشبكة
+      if (firebaseUser != null) {
+        try {
+          await firebaseUser.user!.delete();
+          print("تم حذف حساب Firebase الفاشل بسبب خطأ في الشبكة.");
+        } catch (deleteError) {
+          print("فشل حذف حساب Firebase: ${deleteError.toString()}");
+        }
+      }
+
+      return {'success': false, 'message': userMessage};
     }
   }
 
@@ -914,11 +951,12 @@ class AuthService {
   }
 
   // ======== دوال التخزين المحلي ========
-  // حفظ بيانات المستخدم مع حالة التحقق من البريد الإلكتروني
+
+  // حفظ بيانات المستخدم
   static Future<void> _saveUserData(Map<String, dynamic> userData) async {
     try {
       final prefs = await SharedPreferences.getInstance();
-      _currentToken = userData['token'];
+      _userToken = userData['token'];
       _currentUser = {
         'user_id': userData['user_id'],
         'full_name': userData['full_name'],
@@ -927,39 +965,30 @@ class AuthService {
         'gender': userData['gender'],
         'user_type': userData['user_type'] ?? 'person',
         'is_admin': userData['is_admin'] ?? 0,
-        'email_verified': userData['email_verified'] ?? false,
       };
 
-      await prefs.setString(_tokenKey, _currentToken!);
+      await prefs.setString(_tokenKey, _userToken!);
       await prefs.setInt(_userIdKey, userData['user_id']);
       await prefs.setString(_userNameKey, userData['full_name']);
-      if (userData['email'] != null) {
+      if (userData['email'] != null)
         await prefs.setString(_userEmailKey, userData['email']);
-      }
-      if (userData['phone'] != null) {
+      if (userData['phone'] != null)
         await prefs.setString(_userPhoneKey, userData['phone']);
-      }
       await prefs.setString(_userGenderKey, userData['gender']);
-      await prefs.setString(
-        _userTypeKey,
-        userData['user_type'] ?? 'person',
-      );
+      await prefs.setString(_userTypeKey, userData['user_type'] ?? 'person');
       await prefs.setInt(_userIsAdminKey, userData['is_admin'] ?? 0);
-      await prefs.setBool(
-          _emailVerifiedKey, userData['email_verified'] ?? false);
-
       print(' تم حفظ بيانات المستخدم محلياً');
     } catch (e) {
-      print(' خطأ في حفظ بيانات المستخدم');
+      print(' خطأ في حفظ بيانات المستخدم: $e');
     }
   }
 
-  // تحميل بيانات المستخدم مع حالة التحقق من البريد الإلكتروني
+  // تحميل بيانات المستخدم
   static Future<void> loadUserData() async {
     try {
       final prefs = await SharedPreferences.getInstance();
-      _currentToken = prefs.getString(_tokenKey);
-      if (_currentToken != null) {
+      _userToken = prefs.getString(_tokenKey);
+      if (_userToken != null) {
         _currentUser = {
           'user_id': prefs.getInt(_userIdKey),
           'full_name': prefs.getString(_userNameKey),
@@ -968,33 +997,29 @@ class AuthService {
           'gender': prefs.getString(_userGenderKey),
           'user_type': prefs.getString(_userTypeKey) ?? 'person',
           'is_admin': prefs.getInt(_userIsAdminKey) ?? 0,
-          'email_verified': prefs.getBool(_emailVerifiedKey) ?? false,
         };
         print(' تم تحميل بيانات المستخدم من التخزين المحلي');
       }
     } catch (e) {
-      print(' خطأ في تحميل بيانات المستخدم');
+      print(' خطأ في تحميل بيانات المستخدم: $e');
     }
   }
 
-  // تسجيل الخروج مع تسجيل الخروج من Firebase
+  // تسجيل الخروج
   static Future<void> logout() async {
     try {
       await _auth.signOut();
-
       final prefs = await SharedPreferences.getInstance();
       await prefs.clear();
-      _currentToken = null;
+      _userToken = null;
       _currentUser = null;
       print(' تم تسجيل الخروج وحذف البيانات المحلية');
     } catch (e) {
-      print(' خطأ في تسجيل الخروج');
+      print(' خطأ في تسجيل الخروج: $e');
     }
   }
 
   // ======== دوال التحقق والتنسيق ========
-
-  // التحقق من صحة البريد الإلكتروني
   static bool isValidEmail(String email) {
     return RegExp(r'^[^@]+@[^@]+\.[^@]+').hasMatch(email);
   }
@@ -1012,16 +1037,9 @@ class AuthService {
 
   // تنسيق رقم الهاتف
   static String formatPhoneNumber(String phone) {
-    // إزالة جميع الأحرف غير الرقمية
     phone = phone.replaceAll(RegExp(r'[^0-9]'), '');
-    // إزالة الصفر من البداية إن وجد
-    if (phone.startsWith('0')) {
-      phone = phone.substring(1);
-    }
-    // إضافة رمز البلد إذا لم يكن موجوداً
-    if (!phone.startsWith('963')) {
-      phone = '963$phone';
-    }
+    if (phone.startsWith('0')) phone = phone.substring(1);
+    if (!phone.startsWith('963')) phone = '963$phone';
     return '+$phone';
   }
 
