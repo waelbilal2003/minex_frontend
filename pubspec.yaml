@@ -36,6 +36,7 @@ dependencies:
   share_plus: ^7.0.1
   app_links: ^6.4.1   # مكتبة Deep Linking
   provider: ^6.1.5+1         # إدارة الحالة
+  firebase_auth: ^4.16.0
 
 
 dev_dependencies:

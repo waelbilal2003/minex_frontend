@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'login_page.dart';
 import 'auth_service.dart';
 import 'privacy_policy_page.dart';
+import 'email_verification_page.dart';
 
 class SignupPage extends StatefulWidget {
   const SignupPage({Key? key}) : super(key: key);
@@ -24,7 +25,7 @@ class _SignupPageState extends State<SignupPage> {
   String _selectedGender = 'ذكر';
   String _registrationType = 'phone'; // 'phone', 'email', 'both'
   String _selectedUserType = 'person'; // 'person' or 'store'
-  // final TextEditingController _apiUrlController = TextEditingController(); // 1. تم تعليق وحدة التحكم
+  bool _addPhoneNumber = false;
 
   // قائمة الدول مع الأيموجيز الحقيقية للأعلام
   final List<Map<String, dynamic>> _countries = [
@@ -51,102 +52,13 @@ class _SignupPageState extends State<SignupPage> {
 
   late Map<String, dynamic> _selectedCountry;
 
-  /* // 4. تم تعليق دالة تحميل عنوان API بالكامل
-  void _loadSavedApiUrl() async {
-    final prefs = await SharedPreferences.getInstance();
-    final savedUrl = prefs.getString('api_url');
-    if (savedUrl != null && savedUrl.isNotEmpty) {
-      setState(() {
-        _apiUrlController.text = savedUrl;
-        AuthService.baseUrl = savedUrl;
-      });
-    } else {
-      _apiUrlController.text = AuthService.baseUrl;
-    }
-  }
-  */
-
-  /* // 5. تم تعليق دالة عرض مربع حوار تغيير عنوان API بالكامل
-  void _showApiUrlDialog() async {
-    if (!mounted) return;
-
-    final prefs = await SharedPreferences.getInstance();
-    _apiUrlController.text = AuthService.baseUrl;
-
-    showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (dialogContext) {
-        return AlertDialog(
-          title: const Text('تغيير عنوان API'),
-          content: TextFormField(
-            controller: _apiUrlController,
-            decoration: const InputDecoration(
-              labelText: 'عنوان الخادم الرئيسي',
-              hintText: 'https://example.ngrok-free.app',
-              border: OutlineInputBorder(),
-            ),
-            keyboardType: TextInputType.url,
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(dialogContext),
-              child: const Text('إلغاء'),
-            ),
-            ElevatedButton(
-              onPressed: () async {
-                final newUrl = _apiUrlController.text.trim();
-
-                if (newUrl.isNotEmpty &&
-                    (newUrl.startsWith('http://') ||
-                        newUrl.startsWith('https://'))) {
-                  final formattedUrl = newUrl.endsWith('/')
-                      ? newUrl.substring(0, newUrl.length - 1)
-                      : newUrl;
-
-                  setState(() {
-                    AuthService.baseUrl = formattedUrl;
-                  });
-                  await prefs.setString('api_url', formattedUrl);
-
-                  if (mounted) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text('✅ تم تحديث عنوان API بنجاح'),
-                        backgroundColor: Colors.green,
-                      ),
-                    );
-                    Navigator.pop(dialogContext);
-                  }
-                } else {
-                  if (mounted) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text(
-                            '❌ خطأ: يجب أن يبدأ الرابط بـ http:// أو https://'),
-                        backgroundColor: Colors.red,
-                      ),
-                    );
-                  }
-                }
-              },
-              child: const Text('حفظ'),
-            ),
-          ],
-        );
-      },
-    );
-  }
-  */
-
   @override
   void initState() {
     super.initState();
-    _selectedCountry = _countries.firstWhere(
-      (country) => country['code'] == '+963',
-      orElse: () => _countries[0],
-    );
-    // _loadSavedApiUrl(); // 2. تم تعليق استدعاء الدالة
+    //_selectedCountry = _countries.firstWhere(
+    //(country) => country['code'] == '+963',
+    //orElse: () => _countries[0],
+    //);
   }
 
   @override
@@ -156,31 +68,17 @@ class _SignupPageState extends State<SignupPage> {
     _phoneController.dispose();
     _passwordController.dispose();
     _confirmPasswordController.dispose();
-    // _apiUrlController.dispose(); // 3. تم تعليق التخلص من وحدة التحكم
     super.dispose();
   }
 
   Color get _primaryColor =>
       _selectedGender == 'ذكر' ? Colors.blue : Colors.pink;
 
-  // ... (بقية الدوال تبقى كما هي)
   void _checkPasswordsMatch() {
     setState(() {
       _passwordsMatch =
           _passwordController.text == _confirmPasswordController.text;
     });
-  }
-
-  String? _validateEmail(String? value) {
-    if (_registrationType == 'email' || _registrationType == 'both') {
-      if (value == null || value.isEmpty) {
-        return 'الرجاء إدخال البريد الإلكتروني';
-      }
-      if (!AuthService.isValidEmail(value)) {
-        return 'الرجاء إدخال بريد إلكتروني صحيح (مثال: user@example.com)';
-      }
-    }
-    return null;
   }
 
   String? _validatePhone(String? value) {
@@ -214,18 +112,14 @@ class _SignupPageState extends State<SignupPage> {
     setState(() => _isLoading = true);
 
     try {
-      String emailOrPhone;
-      if (_registrationType == 'phone') {
-        emailOrPhone = _selectedCountry['code']! + _phoneController.text.trim();
-      } else {
-        emailOrPhone = _emailController.text.trim();
-      }
-
       final result = await AuthService.register(
         fullName: _nameController.text.trim(),
-        emailOrPhone: emailOrPhone,
+        email: _emailController.text.trim(), // <--- تمرير البريد الإلكتروني
         password: _passwordController.text,
         gender: _selectedGender,
+        phone: _addPhoneNumber
+            ? _phoneController.text.trim()
+            : null, // <--- تمرير الهاتف اختيارياً
         userType: _selectedUserType,
       );
 
@@ -234,12 +128,20 @@ class _SignupPageState extends State<SignupPage> {
       if (result['success'] == true) {
         await AuthService.loadUserData();
 
-        Navigator.of(context).pushAndRemoveUntil(
-          MaterialPageRoute(builder: (context) => const LoginPage()),
-          (Route<dynamic> route) => false,
-        );
+        // التحقق مما إذا كان التسجيل يتطلب تأكيد البريد الإلكتروني
+        if (result['email_verification_required'] == true) {
+          Navigator.of(context).pushAndRemoveUntil(
+            MaterialPageRoute(
+                builder: (context) => const EmailVerificationPage()),
+            (Route<dynamic> route) => false,
+          );
+        } else {
+          Navigator.of(context).pushAndRemoveUntil(
+            MaterialPageRoute(builder: (context) => const LoginPage()),
+            (Route<dynamic> route) => false,
+          );
+        }
       } else {
-        // --- بداية التعديلات الجديدة ---
         String errorMessage = 'فشل إنشاء الحساب، حاول مرة أخرى لاحقاً.';
 
         // تحقق مما إذا كانت الاستجابة تحتوي على أخطاء تحقق (Validation Errors)
@@ -247,7 +149,6 @@ class _SignupPageState extends State<SignupPage> {
           final errors = Map<String, dynamic>.from(result['errors']);
 
           // ابحث عن خطأ متعلق بالإيميل أو رقم الهاتف
-          // الخادم قد يستخدم مفتاح 'email_or_phone' أو 'email' أو 'phone'
           if (errors.containsKey('email_or_phone')) {
             errorMessage = 'هذا البريد الإلكتروني أو رقم الهاتف مستخدم بالفعل.';
           } else if (errors.containsKey('email')) {
@@ -268,7 +169,6 @@ class _SignupPageState extends State<SignupPage> {
           // إذا لم تكن هناك أخطاء تحقق، استخدم الرسالة العامة
           errorMessage = result['message'].toString();
         }
-        // --- نهاية التعديلات الجديدة ---
 
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text(errorMessage), backgroundColor: Colors.red),
@@ -296,167 +196,275 @@ class _SignupPageState extends State<SignupPage> {
         centerTitle: true,
         backgroundColor: Colors.white,
         foregroundColor: _primaryColor,
-        actions: [
-          /* // 6. تم تعليق زر الإعدادات
-          IconButton(
-            icon: const Icon(Icons.settings),
-            onPressed: _showApiUrlDialog,
-            tooltip: 'تغيير عنوان API',
-          ),
-          */
-        ],
       ),
       body: SingleChildScrollView(
         child: Padding(
           padding: const EdgeInsets.all(20.0),
           child: Form(
             key: _formKey,
-            child: Column(
-              children: [
+            child: Column(children: [
+              const SizedBox(height: 20),
+              Text(
+                'Minex',
+                style: TextStyle(
+                  fontSize: 32,
+                  fontWeight: FontWeight.bold,
+                  color: _primaryColor,
+                ),
+              ),
+              const SizedBox(height: 5),
+              Text(
+                'بيع وشراء بكل سهولة',
+                style: TextStyle(
+                  fontSize: 16,
+                  color: Colors.black,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              const SizedBox(height: 30),
+              // اسم المستخدم
+              TextFormField(
+                controller: _nameController,
+                decoration: InputDecoration(
+                  labelText: 'الاسم الكامل',
+                  labelStyle: TextStyle(color: _primaryColor),
+                  border: OutlineInputBorder(
+                    borderSide: BorderSide(color: _primaryColor),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderSide: BorderSide(color: _primaryColor, width: 2),
+                  ),
+                  prefixIcon: Icon(Icons.person, color: _primaryColor),
+                ),
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'الرجاء إدخال الاسم الكامل';
+                  }
+                  return null;
+                },
+              ),
+              const SizedBox(height: 20),
+
+              // اختيار نوع التسجيل
+              Container(
+                decoration: BoxDecoration(
+                  border: Border.all(color: _primaryColor),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 8,
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'طريقة التسجيل:',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                        color: _primaryColor,
+                      ),
+                    ),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: RadioListTile<String>(
+                            title: Text('رقم الهاتف'),
+                            value: 'phone',
+                            groupValue: _registrationType,
+                            activeColor: _primaryColor,
+                            onChanged: (String? value) {
+                              setState(() {
+                                _registrationType = value!;
+                              });
+                            },
+                            dense: true,
+                          ),
+                        ),
+                        Expanded(
+                          child: RadioListTile<String>(
+                            title: Text('بريد إلكتروني'),
+                            value: 'email',
+                            groupValue: _registrationType,
+                            activeColor: _primaryColor,
+                            onChanged: (String? value) {
+                              setState(() {
+                                _registrationType = value!;
+                              });
+                            },
+                            dense: true,
+                          ),
+                        ),
+                      ],
+                    ),
+                    RadioListTile<String>(
+                      title: Text('كلاهما معاً'),
+                      value: 'both',
+                      groupValue: _registrationType,
+                      activeColor: _primaryColor,
+                      onChanged: (String? value) {
+                        setState(() {
+                          _registrationType = value!;
+                        });
+                      },
+                      dense: true,
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 20),
+
+              if (_registrationType == 'phone' ||
+                  _registrationType == 'both') ...[
+                Row(
+                  children: [
+                    // رقم الهاتف
+                    Expanded(
+                      child: TextFormField(
+                        controller: _phoneController,
+                        keyboardType: TextInputType.phone,
+                        inputFormatters: [
+                          FilteringTextInputFormatter.digitsOnly,
+                          LengthLimitingTextInputFormatter(9),
+                        ],
+                        decoration: InputDecoration(
+                          labelText: 'رقم الهاتف',
+                          labelStyle: TextStyle(color: _primaryColor),
+                          border: OutlineInputBorder(
+                            borderSide: BorderSide(color: _primaryColor),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderSide: BorderSide(
+                              color: _primaryColor,
+                              width: 2,
+                            ),
+                          ),
+                          prefixIcon: Icon(Icons.phone, color: _primaryColor),
+                        ),
+                        validator: _validatePhone,
+                      ),
+                    ),
+                    const SizedBox(width: 10),
+                    // رمز الدولة
+                    Expanded(
+                      child: DropdownButtonFormField<Map<String, dynamic>>(
+                        value: _selectedCountry,
+                        decoration: InputDecoration(
+                          labelText: 'رمز الدولة',
+                          labelStyle: TextStyle(color: _primaryColor),
+                          border: OutlineInputBorder(
+                            borderSide: BorderSide(color: _primaryColor),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderSide: BorderSide(
+                              color: _primaryColor,
+                              width: 2,
+                            ),
+                          ),
+                        ),
+                        items: _countries.map((country) {
+                          return DropdownMenuItem(
+                            value: country,
+                            child: Row(
+                              children: [
+                                Text(
+                                  country['name'],
+                                  style: const TextStyle(fontSize: 16),
+                                ),
+                                const SizedBox(width: 8),
+                                Text('${country['code']}'),
+                              ],
+                            ),
+                          );
+                        }).toList(),
+                        onChanged: (value) {
+                          if (value != null) {
+                            setState(() {
+                              _selectedCountry = value;
+                            });
+                          }
+                        },
+                        validator: (value) {
+                          if ((_registrationType == 'phone' ||
+                                  _registrationType == 'both') &&
+                              value == null) {
+                            return 'الرجاء اختيار رمز الدولة';
+                          }
+                          return null;
+                        },
+                      ),
+                    ),
+                  ],
+                ),
                 const SizedBox(height: 20),
-                Text(
-                  'Minex',
-                  style: TextStyle(
-                    fontSize: 32,
-                    fontWeight: FontWeight.bold,
-                    color: _primaryColor,
-                  ),
-                ),
-                const SizedBox(height: 5),
-                Text(
-                  'بيع وشراء بكل سهولة',
-                  style: TextStyle(
-                    fontSize: 16,
-                    color: Colors.black,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                const SizedBox(height: 30),
-                // اسم المستخدم
+              ],
+
+              // حقل البريد الإلكتروني (إذا كان مطلوباً)
+              if (_registrationType == 'email' ||
+                  _registrationType == 'both') ...[
                 TextFormField(
-                  controller: _nameController,
+                  controller: _emailController,
                   decoration: InputDecoration(
-                    labelText: 'الاسم الكامل',
+                    labelText: 'البريد الإلكتروني (إلزامي)',
                     labelStyle: TextStyle(color: _primaryColor),
                     border: OutlineInputBorder(
-                      borderSide: BorderSide(color: _primaryColor),
-                    ),
+                        borderSide: BorderSide(color: _primaryColor)),
                     focusedBorder: OutlineInputBorder(
-                      borderSide: BorderSide(color: _primaryColor, width: 2),
-                    ),
-                    prefixIcon: Icon(Icons.person, color: _primaryColor),
+                        borderSide: BorderSide(color: _primaryColor, width: 2)),
+                    prefixIcon: Icon(Icons.email, color: _primaryColor),
                   ),
+                  keyboardType: TextInputType.emailAddress,
                   validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'الرجاء إدخال الاسم الكامل';
-                    }
+                    if (value == null || value.isEmpty)
+                      return 'الرجاء إدخال البريد الإلكتروني';
+                    if (!AuthService.isValidEmail(value))
+                      return 'الرجاء إدخال بريد إلكتروني صحيح';
                     return null;
                   },
                 ),
                 const SizedBox(height: 20),
 
-                // اختيار نوع التسجيل
-                Container(
-                  decoration: BoxDecoration(
-                    border: Border.all(color: _primaryColor),
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 12,
-                    vertical: 8,
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'طريقة التسجيل:',
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                          color: _primaryColor,
-                        ),
-                      ),
-                      Row(
-                        children: [
-                          Expanded(
-                            child: RadioListTile<String>(
-                              title: Text('رقم الهاتف'),
-                              value: 'phone',
-                              groupValue: _registrationType,
-                              activeColor: _primaryColor,
-                              onChanged: (String? value) {
-                                setState(() {
-                                  _registrationType = value!;
-                                });
-                              },
-                              dense: true,
-                            ),
-                          ),
-                          Expanded(
-                            child: RadioListTile<String>(
-                              title: Text('بريد إلكتروني'),
-                              value: 'email',
-                              groupValue: _registrationType,
-                              activeColor: _primaryColor,
-                              onChanged: (String? value) {
-                                setState(() {
-                                  _registrationType = value!;
-                                });
-                              },
-                              dense: true,
-                            ),
-                          ),
-                        ],
-                      ),
-                      RadioListTile<String>(
-                        title: Text('كلاهما معاً'),
-                        value: 'both',
-                        groupValue: _registrationType,
-                        activeColor: _primaryColor,
-                        onChanged: (String? value) {
-                          setState(() {
-                            _registrationType = value!;
-                          });
-                        },
-                        dense: true,
-                      ),
-                    ],
-                  ),
+                // Checkbox لإضافة رقم الهاتف
+                CheckboxListTile(
+                  title: const Text('إضافة رقم هاتف (اختياري)'),
+                  value:
+                      _addPhoneNumber, // <--- متغير جديد ستحتاج لإضافته في State
+                  onChanged: (bool? value) {
+                    setState(() {
+                      _addPhoneNumber = value!;
+                    });
+                  },
+                  activeColor: _primaryColor,
+                  controlAffinity: ListTileControlAffinity.leading,
+                  contentPadding: EdgeInsets.zero,
                 ),
-                const SizedBox(height: 20),
 
-                if (_registrationType == 'phone' ||
-                    _registrationType == 'both') ...[
+                // حقول الهاتف تظهر فقط عند تحديد الـ Checkbox
+                if (_addPhoneNumber) ...[
                   Row(
                     children: [
-                      // رقم الهاتف
                       Expanded(
                         child: TextFormField(
                           controller: _phoneController,
                           keyboardType: TextInputType.phone,
                           inputFormatters: [
                             FilteringTextInputFormatter.digitsOnly,
-                            LengthLimitingTextInputFormatter(9),
+                            LengthLimitingTextInputFormatter(9)
                           ],
                           decoration: InputDecoration(
                             labelText: 'رقم الهاتف',
                             labelStyle: TextStyle(color: _primaryColor),
                             border: OutlineInputBorder(
-                              borderSide: BorderSide(color: _primaryColor),
-                            ),
+                                borderSide: BorderSide(color: _primaryColor)),
                             focusedBorder: OutlineInputBorder(
-                              borderSide: BorderSide(
-                                color: _primaryColor,
-                                width: 2,
-                              ),
-                            ),
+                                borderSide:
+                                    BorderSide(color: _primaryColor, width: 2)),
                             prefixIcon: Icon(Icons.phone, color: _primaryColor),
                           ),
-                          validator: _validatePhone,
                         ),
                       ),
                       const SizedBox(width: 10),
-                      // رمز الدولة
                       Expanded(
                         child: DropdownButtonFormField<Map<String, dynamic>>(
                           value: _selectedCountry,
@@ -464,72 +472,27 @@ class _SignupPageState extends State<SignupPage> {
                             labelText: 'رمز الدولة',
                             labelStyle: TextStyle(color: _primaryColor),
                             border: OutlineInputBorder(
-                              borderSide: BorderSide(color: _primaryColor),
-                            ),
+                                borderSide: BorderSide(color: _primaryColor)),
                             focusedBorder: OutlineInputBorder(
-                              borderSide: BorderSide(
-                                color: _primaryColor,
-                                width: 2,
-                              ),
-                            ),
+                                borderSide:
+                                    BorderSide(color: _primaryColor, width: 2)),
                           ),
                           items: _countries.map((country) {
                             return DropdownMenuItem(
                               value: country,
-                              child: Row(
-                                children: [
-                                  Text(
-                                    country['name'],
-                                    style: const TextStyle(fontSize: 16),
-                                  ),
-                                  const SizedBox(width: 8),
-                                  Text('${country['code']}'),
-                                ],
-                              ),
+                              child: Row(children: [
+                                Text(country['name'],
+                                    style: const TextStyle(fontSize: 16)),
+                                const SizedBox(width: 8),
+                                Text('${country['code']}')
+                              ]),
                             );
                           }).toList(),
-                          onChanged: (value) {
-                            if (value != null) {
-                              setState(() {
-                                _selectedCountry = value;
-                              });
-                            }
-                          },
-                          validator: (value) {
-                            if ((_registrationType == 'phone' ||
-                                    _registrationType == 'both') &&
-                                value == null) {
-                              return 'الرجاء اختيار رمز الدولة';
-                            }
-                            return null;
-                          },
+                          onChanged: (value) =>
+                              setState(() => _selectedCountry = value!),
                         ),
                       ),
                     ],
-                  ),
-                  const SizedBox(height: 20),
-                ],
-
-                // حقل البريد الإلكتروني (إذا كان مطلوباً)
-                if (_registrationType == 'email' ||
-                    _registrationType == 'both') ...[
-                  TextFormField(
-                    controller: _emailController,
-                    decoration: InputDecoration(
-                      labelText: _registrationType == 'both'
-                          ? 'البريد الإلكتروني'
-                          : 'البريد الإلكتروني',
-                      labelStyle: TextStyle(color: _primaryColor),
-                      border: OutlineInputBorder(
-                        borderSide: BorderSide(color: _primaryColor),
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                        borderSide: BorderSide(color: _primaryColor, width: 2),
-                      ),
-                      prefixIcon: Icon(Icons.email, color: _primaryColor),
-                    ),
-                    keyboardType: TextInputType.emailAddress,
-                    validator: _validateEmail,
                   ),
                   const SizedBox(height: 20),
                 ],
@@ -743,6 +706,33 @@ class _SignupPageState extends State<SignupPage> {
                   ),
                 ),
 
+                // إضافة عبارة حول تأكيد البريد الإلكتروني
+                if (_registrationType == 'email' || _registrationType == 'both')
+                  Container(
+                    padding: const EdgeInsets.all(12),
+                    margin: const EdgeInsets.only(bottom: 20),
+                    decoration: BoxDecoration(
+                      color: Colors.blue.withOpacity(0.1),
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(color: Colors.blue.withOpacity(0.3)),
+                    ),
+                    child: Row(
+                      children: [
+                        Icon(Icons.info_outline, color: Colors.blue[700]),
+                        const SizedBox(width: 10),
+                        Expanded(
+                          child: Text(
+                            'سيتم إرسال بريد تأكيد إلى بريدك الإلكتروني بعد التسجيل',
+                            style: TextStyle(
+                              color: Colors.blue[700],
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+
                 // زر إنشاء الحساب
                 SizedBox(
                   width: double.infinity,
@@ -779,7 +769,7 @@ class _SignupPageState extends State<SignupPage> {
                   ),
                 ),
               ],
-            ),
+            ]),
           ),
         ),
       ),
