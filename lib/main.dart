@@ -96,8 +96,9 @@ class _MyAppState extends State<MyApp> {
 
   void _handleDeepLink(String link) {
     // ✅ أُزيلت المسافات الزائدة من الرابط
-    if (link.startsWith('https://minexsy.site/posts/')) {
-      final postIdString = link.substring('https://minexsy.site/posts/'.length);
+    if (link.startsWith('https://minexsy.site/api/posts/')) {
+      final postIdString =
+          link.substring('https://minexsy.site/api/posts/'.length);
       final postId = int.tryParse(postIdString);
 
       if (postId != null) {
@@ -146,8 +147,8 @@ class _MyAppState extends State<MyApp> {
       home: SplashScreen(initialLink: _initialLink),
       routes: {'/notifications': (context) => const NotificationsPage()},
       onGenerateRoute: (settings) {
-        if (settings.name?.startsWith('/posts/') == true) {
-          final postIdString = settings.name?.substring('/posts/'.length);
+        if (settings.name?.startsWith('/api/') == true) {
+          final postIdString = settings.name?.substring('/api/'.length);
           final postId = int.tryParse(postIdString ?? '');
 
           if (postId != null) {
@@ -194,9 +195,9 @@ class _SplashScreenState extends State<SplashScreen> {
     if (widget.initialLink != null) {
       final link = widget.initialLink!;
       // ✅ تم التصحيح هنا أيضاً
-      if (link.startsWith('https://minexsy.site/posts/')) {
+      if (link.startsWith('https://minexsy.site/api/posts/')) {
         final postIdString =
-            link.substring('https://minexsy.site/posts/'.length);
+            link.substring('https://minexsy.site/api/posts/'.length);
         final postId = int.tryParse(postIdString);
 
         if (postId != null) {

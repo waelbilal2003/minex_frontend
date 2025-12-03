@@ -15,7 +15,6 @@ import 'login_page.dart';
 import 'vip_ads_widget.dart';
 import 'post_helpers.dart';
 import 'favorites_page.dart';
-import 'email_verification_page.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
@@ -43,48 +42,7 @@ class _HomePageState extends State<HomePage> {
     _startVipAdsAutoScroll();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _fetchPosts(); // تحميل البيانات بعد بناء الواجهة
-      _checkEmailVerificationStatus(); // إضافة التحقق من البريد الإلكتروني
     });
-  }
-
-// إضافة دالة جديدة للتحقق من حالة البريد الإلكتروني وعرض تنبيه
-  Future<void> _checkEmailVerificationStatus() async {
-    // التحقق فقط إذا كان المستخدم مسجل دخوله ولديه بريد إلكتروني
-    if (AuthService.isLoggedIn &&
-        AuthService.currentUser != null &&
-        AuthService.currentUser!['email'] != null) {
-      // إذا لم يتم التحقق من البريد الإلكتروني
-      if (!AuthService.isEmailVerified) {
-        // تحديث الحالة من Firebase للتأكد
-        final result = await AuthService.checkEmailVerificationStatus();
-
-        // إذا كان لا يزال غير مؤكد بعد التحقق، اعرض التنبيه
-        if (result['success'] == true && result['verified'] == false) {
-          if (mounted) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: const Text(
-                    'يجب تأكيد بريدك الإلكتروني لتفعيل جميع الميزات.'),
-                backgroundColor: Colors.orange,
-                duration: const Duration(seconds: 8), // مدة أطول قليلاً
-                action: SnackBarAction(
-                  label: 'تأكيد الآن',
-                  textColor: Colors.white,
-                  onPressed: () {
-                    // الانتقال إلى صفحة التحقق عند الضغط
-                    Navigator.of(context).push(
-                      MaterialPageRoute(
-                        builder: (context) => const EmailVerificationPage(),
-                      ),
-                    );
-                  },
-                ),
-              ),
-            );
-          }
-        }
-      }
-    }
   }
 
   Future<void> _fetchVipAds() async {
@@ -684,51 +642,6 @@ class _HomePageState extends State<HomePage> {
                     textAlign: TextAlign.center,
                   ),
                 ),
-
-                // === إضافة شريط تحذير جديد ===
-                // عرض شريط تحذير إذا كان البريد الإلكتروني غير مؤكد
-                if (AuthService.isLoggedIn &&
-                    AuthService.currentUser != null &&
-                    AuthService.currentUser!['email'] != null &&
-                    !AuthService.isEmailVerified)
-                  Container(
-                    width: double.infinity,
-                    margin:
-                        const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                    padding: const EdgeInsets.all(12),
-                    decoration: BoxDecoration(
-                      color: Colors.orange.withOpacity(0.1),
-                      borderRadius: BorderRadius.circular(8),
-                      border: Border.all(color: Colors.orange),
-                    ),
-                    child: Row(
-                      children: [
-                        const Icon(Icons.warning_amber_outlined,
-                            color: Colors.orange),
-                        const SizedBox(width: 10),
-                        const Expanded(
-                          child: Text(
-                            'بريدك الإلكتروني غير مؤكد. قد تفقد الوصول لبعض الميزات.',
-                            style: TextStyle(
-                                color: Colors.orange,
-                                fontWeight: FontWeight.w500),
-                          ),
-                        ),
-                        TextButton(
-                          onPressed: () {
-                            Navigator.of(context).push(
-                              MaterialPageRoute(
-                                builder: (context) =>
-                                    const EmailVerificationPage(),
-                              ),
-                            );
-                          },
-                          child: const Text('تأكيد الآن',
-                              style: TextStyle(color: Colors.orange)),
-                        ),
-                      ],
-                    ),
-                  ),
 
                 VipAdsWidget(primaryColor: _primaryColor),
 

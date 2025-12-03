@@ -1,8 +1,9 @@
+// login_page.dart - النسخة النهائية والمحسنة
+
 import 'package:flutter/material.dart';
 import 'signup_page.dart';
 import 'auth_service.dart';
 import 'home_page.dart';
-import 'email_verification_page.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({Key? key}) : super(key: key);
@@ -13,19 +14,13 @@ class LoginPage extends StatefulWidget {
 
 class _LoginPageState extends State<LoginPage> {
   final _formKey = GlobalKey<FormState>();
-  final _emailOrPhoneController = TextEditingController();
+  final _emailController = TextEditingController(); // تم تغيير الاسم للوضوح
   final _passwordController = TextEditingController();
   bool _isLoading = false;
-  bool _requiresVerification = false;
-
-  @override
-  void initState() {
-    super.initState();
-  }
 
   @override
   void dispose() {
-    _emailOrPhoneController.dispose();
+    _emailController.dispose();
     _passwordController.dispose();
     super.dispose();
   }
@@ -40,56 +35,38 @@ class _LoginPageState extends State<LoginPage> {
   void _submitForm() async {
     if (_formKey.currentState!.validate()) {
       setState(() => _isLoading = true);
-      _requiresVerification = false;
 
       try {
         final result = await AuthService.login(
-          email: _emailOrPhoneController.text.trim(),
+          emailOrPhone: _emailController.text.trim(),
           password: _passwordController.text,
         );
 
         if (!mounted) return;
 
         if (result['success'] == true) {
-          // التحقق مما إذا كان المستخدم يحتاج إلى تأكيد البريد الإلكتروني
-          if (result['email_verification_required'] == true) {
-            Navigator.of(context).pushAndRemoveUntil(
-              MaterialPageRoute(
-                  builder: (context) => const EmailVerificationPage()),
-              (Route<dynamic> route) => false,
-            );
-          } else {
-            Navigator.of(context).pushAndRemoveUntil(
-              MaterialPageRoute(builder: (context) => const HomePage()),
-              (Route<dynamic> route) => false,
-            );
-          }
+          Navigator.of(context).pushAndRemoveUntil(
+            MaterialPageRoute(builder: (context) => const HomePage()),
+            (Route<dynamic> route) => false,
+          );
         } else {
-          final errorMessage =
-              result['message'] ?? 'فشل تسجيل الدخول. يرجى المحاولة لاحقاً';
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(errorMessage), backgroundColor: Colors.red),
-          );
-          // التحقق مما إذا كان الخطأ بسبب عدم التحقق من البريد
-          if (result['requires_verification'] == true) {
-            // <--- أضف هذا التحقق
-            setState(() {
-              _requiresVerification = true;
-            });
+          if (result['code'] == 'EMAIL_NOT_VERIFIED') {
+            _showVerificationDialog();
+          } else {
+            final errorMessage =
+                result['message'] ?? 'فشل تسجيل الدخول. يرجى المحاولة لاحقاً';
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                  content: Text(errorMessage), backgroundColor: Colors.red),
+            );
           }
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-                content: Text(result['message'] ?? 'فشل تسجيل الدخول'),
-                backgroundColor: Colors.red),
-          );
         }
       } catch (e) {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text('حدث خطأ في الخادم'),
-              backgroundColor: Colors.red,
-            ),
+                content: Text('حدث خطأ في الخادم: ${e.toString()}'),
+                backgroundColor: Colors.red),
           );
         }
       } finally {
@@ -98,44 +75,55 @@ class _LoginPageState extends State<LoginPage> {
     }
   }
 
-  void _forgotPassword() async {
-    if (_emailOrPhoneController.text.trim().isEmpty) {
+  void _showVerificationDialog() {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('تأكيد البريد الإلكتروني'),
+        content: const Text(
+            'لم تقم بتأكيد بريدك الإلكتروني بعد. الرجاء التحقق من صندوق الوارد أو طلب إرسال رسالة جديدة.'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(),
+            child: const Text('إلغاء'),
+          ),
+          ElevatedButton(
+            onPressed: () async {
+              Navigator.of(ctx).pop();
+              await _resendVerificationEmail();
+            },
+            child: const Text('إعادة إرسال الرسالة'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _resendVerificationEmail() async {
+    final email = _emailController.text.trim();
+    if (email.isEmpty || !AuthService.isEmail(email)) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('الرجاء إدخال البريد الإلكتروني أو رقم الهاتف أولاً'),
-          backgroundColor: Colors.orange,
-        ),
+            content: Text('الرجاء إدخال بريد إلكتروني صالح في الحقل المخصص.'),
+            backgroundColor: Colors.orange),
       );
       return;
     }
+    setState(() => _isLoading = true);
+    final result =
+        await AuthService.resendVerificationEmail(emailOrPhone: email);
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(result['message'] ?? 'حدث خطأ غير متوقع.'),
+        backgroundColor: result['success'] ? Colors.green : Colors.red,
+      ),
+    );
+    setState(() => _isLoading = false);
+  }
 
-    setState(() {
-      _isLoading = true;
-    });
-
-    try {
-      final result = await AuthService.forgotPassword(
-        emailOrPhone: _emailOrPhoneController.text.trim(),
-      );
-
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(result['message'] ?? ''),
-          backgroundColor: result['success'] ? Colors.green : Colors.red,
-        ),
-      );
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('حدث خطأ في الخادم'),
-          backgroundColor: Colors.red,
-        ),
-      );
-    } finally {
-      setState(() {
-        _isLoading = false;
-      });
-    }
+  void _forgotPassword() {
+    // يمكنك لاحقاً تطوير هذه الميزة
   }
 
   @override
@@ -153,26 +141,20 @@ class _LoginPageState extends State<LoginPage> {
             child: Column(
               children: [
                 const SizedBox(height: 20),
-                const Text(
-                  'Minex',
-                  style: TextStyle(
-                    fontSize: 32,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.blue,
-                  ),
-                ),
+                const Text('Minex',
+                    style: TextStyle(
+                        fontSize: 32,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.blue)),
                 const SizedBox(height: 5),
-                const Text(
-                  'بيع وشراء بكل سهولة',
-                  style: TextStyle(
-                    fontSize: 16,
-                    color: Colors.black,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
+                const Text('بيع وشراء بكل سهولة',
+                    style: TextStyle(
+                        fontSize: 16,
+                        color: Colors.black,
+                        fontWeight: FontWeight.bold)),
                 const SizedBox(height: 30),
 
-                // إضافة العبارة المطلوبة هنا
+                // --- بداية التحسين ---
                 Container(
                   padding: const EdgeInsets.all(12),
                   margin: const EdgeInsets.only(bottom: 20),
@@ -187,33 +169,35 @@ class _LoginPageState extends State<LoginPage> {
                       const SizedBox(width: 10),
                       Expanded(
                         child: Text(
-                          'إذا كنت قد أنشأت حسابك، أعد إدخال بريدك أو رقم هاتفك مع كلمة المرور',
+                          'أدخل بريدك الإلكتروني وكلمة المرور اللذين استخدمتهما عند إنشاء الحساب.',
                           style: TextStyle(
-                            color: Colors.blue[700],
-                            fontWeight: FontWeight.w500,
-                          ),
+                              color: Colors.blue[700],
+                              fontWeight: FontWeight.w500),
                         ),
                       ),
                     ],
                   ),
                 ),
-
                 TextFormField(
-                  controller: _emailOrPhoneController,
+                  controller: _emailController,
                   decoration: const InputDecoration(
-                    labelText: 'البريد الإلكتروني', // <--- غير النص
+                    labelText: 'البريد الإلكتروني', // تم تغيير النص
                     border: OutlineInputBorder(),
                     prefixIcon: Icon(Icons.email),
                   ),
-                  keyboardType: TextInputType.emailAddress, // <--- أضف هذا
+                  keyboardType: TextInputType.emailAddress, // تحديد نوع الإدخال
                   validator: (value) {
-                    if (value == null || value.isEmpty)
+                    if (value == null || value.isEmpty) {
                       return 'الرجاء إدخال البريد الإلكتروني';
-                    if (!AuthService.isValidEmail(value))
-                      return 'الرجاء إدخال بريد إلكتروني صحيح'; // <--- أضف هذا التحقق
+                    }
+                    if (!AuthService.isValidEmail(value)) {
+                      // استخدام المُحقق
+                      return 'صيغة البريد الإلكتروني غير صحيحة';
+                    }
                     return null;
                   },
                 ),
+                // --- نهاية التحسين ---
                 const SizedBox(height: 20),
                 TextFormField(
                   controller: _passwordController,
@@ -254,24 +238,6 @@ class _LoginPageState extends State<LoginPage> {
                         : const Text('تسجيل الدخول'),
                   ),
                 ),
-                // إظهار زر إعادة الإرسال فقط إذا لزم الأمر
-                if (_requiresVerification)
-                  Padding(
-                    padding: const EdgeInsets.only(top: 16.0),
-                    child: TextButton(
-                      onPressed: _isLoading ? null : _resendVerificationEmail,
-                      child: _isLoading
-                          ? const SizedBox(
-                              height: 20,
-                              width: 20,
-                              child: CircularProgressIndicator(
-                                  strokeWidth: 2, color: Colors.blue))
-                          : const Text('لم أستلم البريد، أعد الإرسال'),
-                    ),
-                  ),
-
-                const SizedBox(height: 20), // <--- تأكد من وجود هذا السطر
-                const Text('أو', style: TextStyle(color: Colors.grey)),
                 const SizedBox(height: 10),
                 SizedBox(
                   width: double.infinity,
@@ -282,17 +248,12 @@ class _LoginPageState extends State<LoginPage> {
                             Navigator.pushReplacement(
                               context,
                               MaterialPageRoute(
-                                builder: (context) => const HomePage(),
-                              ),
+                                  builder: (context) => const HomePage()),
                             );
                           },
-                    child: const Text(
-                      'الدخول كزائر',
-                      style: TextStyle(
-                        color: Colors.blue,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
+                    child: const Text('الدخول كزائر',
+                        style: TextStyle(
+                            color: Colors.blue, fontWeight: FontWeight.bold)),
                   ),
                 ),
                 const SizedBox(height: 20),
@@ -314,21 +275,5 @@ class _LoginPageState extends State<LoginPage> {
         ),
       ),
     );
-  }
-
-  // --- أضف هذه الدالة الجديدة ---
-  Future<void> _resendVerificationEmail() async {
-    setState(() => _isLoading = true);
-    try {
-      final result = await AuthService.sendEmailVerification();
-      if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-            content: Text(result['message']),
-            backgroundColor: result['success'] ? Colors.green : Colors.red),
-      );
-    } finally {
-      if (mounted) setState(() => _isLoading = false);
-    }
   }
 }
