@@ -9,7 +9,7 @@
       "client_info": {
         "mobilesdk_app_id": "1:987403350920:android:71d37203ecf069b7ae403d",
         "android_client_info": {
-          "package_name": "site.minexsy.minex_syrian_arab"
+          "package_name": "com.example.minex"
         }
       },
       "oauth_client": [],
@@ -27,6 +27,25 @@
     {
       "client_info": {
         "mobilesdk_app_id": "1:987403350920:android:707072ab86dad5ebae403d",
+        "android_client_info": {
+          "package_name": "com.example.sywa_bot"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCzWwuVRe9LujNzXcHxSZf0NcJAx5b2MLo"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:987403350920:android:7e441e7bc62a435bae403d",
         "android_client_info": {
           "package_name": "site.minexsy.minex_syrian_arab"
         }
