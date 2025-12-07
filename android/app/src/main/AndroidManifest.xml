@@ -52,6 +52,10 @@
                 <category android:name="android.intent.category.BROWSABLE" />
                 <!-- ربط النمط مع رابط موقعك -->
                 <data android:scheme="https" android:host="minexsy.site" android:pathPrefix="/api" />
+                <data
+                  android:scheme="https"
+                  android:host="minex-89268.firebaseapp.com or your custom domain"
+                  android:pathPrefix="/__/auth/links" />
                 <!-- يمكنك إضافة نمط إضافي للـ http إذا أردت -->
                 <!-- <data android:scheme="http" android:host="kiniru.site" android:pathPrefix="/post" /> -->
             </intent-filter>
