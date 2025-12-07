@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'login_page.dart';
 import 'auth_service.dart';
 import 'privacy_policy_page.dart';
+import 'firebase_email_link_service.dart';
 
 class SignupPage extends StatefulWidget {
   const SignupPage({Key? key}) : super(key: key);
@@ -71,7 +72,8 @@ class _SignupPageState extends State<SignupPage> {
     setState(() => _isLoading = true);
 
     try {
-      final result = await AuthService.register(
+      // 1️⃣ التسجيل في الباك إند أولاً (لحفظ بيانات المستخدم)
+      final backendResult = await AuthService.register(
         fullName: _nameController.text.trim(),
         emailOrPhone: _emailController.text.trim(),
         password: _passwordController.text,
@@ -81,31 +83,99 @@ class _SignupPageState extends State<SignupPage> {
 
       if (!mounted) return;
 
-      if (result['success'] == true) {
-        await showDialog(
-          context: context,
-          barrierDismissible: false,
-          builder: (ctx) => AlertDialog(
-            title: const Text('🎉 تم التسجيل بنجاح'),
-            content: const Text(
-                'تم إرسال رابط تفعيل إلى بريدك الإلكتروني. الرجاء الضغط على الرابط لتفعيل حسابك قبل تسجيل الدخول.'),
-            actions: [
-              TextButton(
-                onPressed: () {
-                  Navigator.of(ctx).pop();
-                  Navigator.of(context).pushAndRemoveUntil(
-                    MaterialPageRoute(builder: (context) => const LoginPage()),
-                    (Route<dynamic> route) => false,
-                  );
-                },
-                child: const Text('حسناً، فهمت'),
-              ),
-            ],
-          ),
+      if (backendResult['success'] == true) {
+        // 2️⃣ إرسال رابط التحقق عبر Firebase
+        final firebaseResult =
+            await FirebaseEmailLinkService.sendSignInLinkToEmail(
+          email: _emailController.text.trim(),
+          continueUrl: 'https://minexsy.site/verify-email',
         );
+
+        if (!mounted) return;
+
+        if (firebaseResult['success'] == true) {
+          // نجح إرسال رابط التحقق
+          await showDialog(
+            context: context,
+            barrierDismissible: false,
+            builder: (ctx) => AlertDialog(
+              title: const Row(
+                children: [
+                  Icon(Icons.email, color: Colors.green, size: 32),
+                  SizedBox(width: 12),
+                  Expanded(child: Text('تم التسجيل بنجاح')),
+                ],
+              ),
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text(
+                    'تم إرسال رابط التحقق إلى بريدك الإلكتروني:',
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    _emailController.text.trim(),
+                    style: const TextStyle(
+                      color: Colors.blue,
+                      fontStyle: FontStyle.italic,
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  const Text(
+                    'الرجاء فتح بريدك الإلكتروني والضغط على الرابط لتفعيل حسابك.',
+                  ),
+                  const SizedBox(height: 12),
+                  Container(
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: Colors.blue.withOpacity(0.1),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: const Row(
+                      children: [
+                        Icon(Icons.info_outline, color: Colors.blue, size: 20),
+                        SizedBox(width: 8),
+                        Expanded(
+                          child: Text(
+                            'لا يمكنك تسجيل الدخول حتى تقوم بتأكيد بريدك الإلكتروني',
+                            style: TextStyle(fontSize: 12, color: Colors.blue),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(ctx).pop();
+                    Navigator.of(context).pushAndRemoveUntil(
+                      MaterialPageRoute(
+                          builder: (context) => const LoginPage()),
+                      (Route<dynamic> route) => false,
+                    );
+                  },
+                  child: const Text('حسناً، فهمت'),
+                ),
+              ],
+            ),
+          );
+        } else {
+          // فشل إرسال رابط التحقق
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content:
+                  Text(firebaseResult['message'] ?? 'فشل إرسال رابط التحقق'),
+              backgroundColor: Colors.orange,
+            ),
+          );
+        }
       } else {
-        String errorMessage =
-            result['message'] ?? 'فشل إنشاء الحساب، حاول مرة أخرى لاحقاً.';
+        String errorMessage = backendResult['message'] ??
+            'فشل إنشاء الحساب، حاول مرة أخرى لاحقاً.';
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text(errorMessage), backgroundColor: Colors.red),
         );

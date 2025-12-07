@@ -12,6 +12,7 @@ import 'notifications_page.dart';
 import 'firebase_api.dart';
 import 'app_globals.dart'; // مفتاح عام للتنقل
 import 'post_details_page.dart';
+import 'email_link_handler_page.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -95,7 +96,6 @@ class _MyAppState extends State<MyApp> {
   }
 
   void _handleDeepLink(String link) {
-    // ✅ أُزيلت المسافات الزائدة من الرابط
     if (link.startsWith('https://minexsy.site/api/posts/')) {
       final postIdString =
           link.substring('https://minexsy.site/api/posts/'.length);
@@ -106,6 +106,11 @@ class _MyAppState extends State<MyApp> {
           _initialLink = link;
         });
       }
+    } else if (link.contains('verify-email')) {
+      // ضع رابط التحقق كبداية حتى يتعامل SplashScreen معه بعد الإقلاع
+      setState(() {
+        _initialLink = link;
+      });
     }
   }
 
@@ -147,8 +152,21 @@ class _MyAppState extends State<MyApp> {
       home: SplashScreen(initialLink: _initialLink),
       routes: {'/notifications': (context) => const NotificationsPage()},
       onGenerateRoute: (settings) {
-        if (settings.name?.startsWith('/api/') == true) {
-          final postIdString = settings.name?.substring('/api/'.length);
+        final name = settings.name;
+
+        // روابط التحقق من البريد الإلكتروني (مثال: myapp://.../verify-email?token=...)
+        if (name != null && name.contains('verify-email')) {
+          final uri = Uri.parse(name);
+          return MaterialPageRoute(
+            builder: (context) => EmailLinkHandlerPage(
+              emailLink: uri.toString(),
+            ),
+          );
+        }
+
+        // روابط فتح تفاصيل المنشور عبر المسار /api/<postId>
+        if (name?.startsWith('/api/') == true) {
+          final postIdString = name?.substring('/api/'.length);
           final postId = int.tryParse(postIdString ?? '');
 
           if (postId != null) {
@@ -157,6 +175,8 @@ class _MyAppState extends State<MyApp> {
             );
           }
         }
+
+        // افتراضيًا ارجع null لكي يستخدم `home` أو طرق معرفة أخرى
         return null;
       },
     );
@@ -195,6 +215,16 @@ class _SplashScreenState extends State<SplashScreen> {
     if (widget.initialLink != null) {
       final link = widget.initialLink!;
       // ✅ تم التصحيح هنا أيضاً
+      if (link.contains('verify-email')) {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (context) => EmailLinkHandlerPage(emailLink: link),
+          ),
+        );
+        return;
+      }
+
       if (link.startsWith('https://minexsy.site/api/posts/')) {
         final postIdString =
             link.substring('https://minexsy.site/api/posts/'.length);
@@ -270,6 +300,7 @@ class _SplashScreenState extends State<SplashScreen> {
             const CircularProgressIndicator(
               valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
             ),
+            // ملاحظة: تم نقل منطق التعامل مع روابط البريد الإلكتروني إلى `MyApp.onGenerateRoute`
           ],
         ),
       ),
