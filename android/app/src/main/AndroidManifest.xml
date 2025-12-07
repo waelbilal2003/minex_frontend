@@ -45,19 +45,32 @@
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
 
-            <!-- ⭐ intent-filter لـ App Links -->
+            <!-- ⭐ intent-filter لـ Firebase Email Link Authentication -->
             <intent-filter android:autoVerify="true">
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                
+                <!-- Firebase Email Link Authentication -->
+                <data
+                  android:scheme="https"
+                  android:host="minex-notifications.firebaseapp.com"
+                  android:pathPrefix="/__/auth/action" />
+                  
+                <!-- Custom Domain Support (إذا كان لديك domain خاص) -->
+                <data
+                  android:scheme="https"
+                  android:host="minexsy.site"
+                  android:pathPrefix="/verify-email" />
+            </intent-filter>
+            
+            <!-- ⭐ intent-filter للـ Deep Links العامة -->
+            <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
                 <!-- ربط النمط مع رابط موقعك -->
                 <data android:scheme="https" android:host="minexsy.site" android:pathPrefix="/api" />
-                <data
-                  android:scheme="https"
-                  android:host="minex-89268.firebaseapp.com or your custom domain"
-                  android:pathPrefix="/__/auth/links" />
-                <!-- يمكنك إضافة نمط إضافي للـ http إذا أردت -->
-                <!-- <data android:scheme="http" android:host="kiniru.site" android:pathPrefix="/post" /> -->
             </intent-filter>
             
         </activity>

@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'signup_page.dart';
 import 'auth_service.dart';
 import 'home_page.dart';
+import 'firebase_email_link_service.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({Key? key}) : super(key: key);
@@ -110,15 +111,23 @@ class _LoginPageState extends State<LoginPage> {
       return;
     }
     setState(() => _isLoading = true);
-    final result =
-        await AuthService.resendVerificationEmail(emailOrPhone: email);
+    
+    // إرسال رابط التحقق من خلال Firebase
+    final firebaseResult = await FirebaseEmailLinkService.sendSignInLinkToEmail(
+      email: email,
+      continueUrl: 'https://minexsy.site/verify-email',
+    );
+    
     if (!mounted) return;
+    
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text(result['message'] ?? 'حدث خطأ غير متوقع.'),
-        backgroundColor: result['success'] ? Colors.green : Colors.red,
+        content: Text(firebaseResult['message'] ?? 'حدث خطأ غير متوقع.'),
+        backgroundColor: firebaseResult['success'] ? Colors.green : Colors.red,
+        duration: const Duration(seconds: 5),
       ),
     );
+    
     setState(() => _isLoading = false);
   }
 
