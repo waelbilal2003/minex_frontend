@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:http/http.dart' as http;
 import 'firebase_email_link_service.dart';
 import 'home_page.dart';
 
@@ -77,8 +79,19 @@ class _EmailLinkHandlerPageState extends State<EmailLinkHandlerPage> {
     if (!mounted) return;
 
     if (result['success'] == true) {
-      // نجح التحقق - الانتقال إلى الصفحة الرئيسية
-      _showSuccessDialog();
+      // نجح التحقق - نخبر الباكند لتحديث users.email_verified_at
+      final backendOk = await _notifyBackendEmailVerified();
+      if (backendOk) {
+        _showSuccessDialog();
+        return;
+      } else {
+        // إذا فشل تحديث الباكند، اعرض رسالة خطأ قابلة لإعادة المحاولة
+        setState(() {
+          _isProcessing = false;
+          _errorMessage = 'فشل تحديث حالة التحقق على الخادم. حاول مرة أخرى.';
+        });
+        return;
+      }
     } else {
       // فشل التحقق - عرض رسالة الخطأ
       setState(() {
@@ -88,6 +101,35 @@ class _EmailLinkHandlerPageState extends State<EmailLinkHandlerPage> {
           _needsEmail = true;
         }
       });
+    }
+  }
+
+  /// يخطر الباكند بأن البريد تم التحقق منه باستخدام Firebase ID token
+  Future<bool> _notifyBackendEmailVerified() async {
+    try {
+      final user = FirebaseAuth.instance.currentUser;
+      if (user == null) return false;
+
+      final idToken = await user.getIdToken();
+
+      final resp = await http.post(
+        Uri.parse('https://minexsy.site/api/verify-email'),
+        headers: {
+          'Authorization': 'Bearer $idToken',
+          'Accept': 'application/json',
+        },
+      ).timeout(const Duration(seconds: 15));
+
+      if (resp.statusCode == 200) {
+        return true;
+      }
+
+      // Log body for debugging (in debug mode you can print)
+      debugPrint('verify-email response: ${resp.statusCode} ${resp.body}');
+      return false;
+    } catch (e) {
+      debugPrint('notifyBackendEmailVerified error: $e');
+      return false;
     }
   }
 
