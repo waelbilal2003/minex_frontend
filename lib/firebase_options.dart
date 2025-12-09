@@ -14,8 +14,8 @@ class DefaultFirebaseOptions {
   }
 
   static const FirebaseOptions android = FirebaseOptions(
-    apiKey: 'AIzaSyDWsn00-GwTNklMQOJ8HvNtystYRGLI7_A',
-    appId: '1:987403350920:android:71d37203ecf069b7ae403d',
+    apiKey: 'AIzaSyCzWwuVRe9LujNzXcHxSZf0NcJAx5b2MLo',
+    appId: '1:987403350920:android:7e441e7bc62a435bae403d',
     messagingSenderId: '987403350920',
     projectId: 'minex-notifications',
     storageBucket: 'minex-notifications.appspot.com',
